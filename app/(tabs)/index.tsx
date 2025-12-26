@@ -1,98 +1,136 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import { View, Text, StyleSheet, Pressable } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { theme } from "../../src/styles/theme";
 
 export default function HomeScreen() {
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+    <View style={styles.container}>
+      <LinearGradient
+        colors={["#1A1440", "#0B0F17"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
+        style={styles.hero}
+      >
+        <Text style={styles.heroKicker}>Today’s Focus</Text>
+        <Text style={styles.heroTitle}>Make today meaningful.</Text>
+        <Text style={styles.heroSub}>
+          Progress comes from clarity, not pressure.
+        </Text>
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+        <Pressable style={styles.primaryButton}>
+          <Text style={styles.primaryButtonText}>Set today’s intention</Text>
+        </Pressable>
+      </LinearGradient>
+
+      <View style={styles.content}>
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Daily progress</Text>
+          <Text style={styles.cardValue}>0% completed</Text>
+          <Text style={styles.cardHint}>One focused action is enough to start.</Text>
+        </View>
+
+        <Text style={styles.sectionTitle}>Quick actions</Text>
+        <View style={styles.row}>
+          <View style={styles.smallCard}>
+            <Text style={styles.smallCardTitle}>Add task</Text>
+            <Text style={styles.smallCardHint}>Small wins matter</Text>
+          </View>
+          <View style={styles.smallCard}>
+            <Text style={styles.smallCardTitle}>Plan week</Text>
+            <Text style={styles.smallCardHint}>Zoom out</Text>
+          </View>
+        </View>
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  container: { flex: 1, backgroundColor: theme.colors.bg },
+
+  hero: {
+    paddingTop: 60,
+    paddingHorizontal: theme.spacing.lg,
+    paddingBottom: theme.spacing.xl,
+    borderBottomLeftRadius: 28,
+    borderBottomRightRadius: 28,
   },
-  stepContainer: {
-    gap: 8,
+  heroKicker: {
+    color: "#B9A7FF",
+    fontSize: theme.textSize.sm,
+    fontWeight: "800",
+    marginBottom: 10,
+  },
+  heroTitle: {
+    color: "#FFFFFF",
+    fontSize: 34,
+    fontWeight: "900",
+    marginBottom: 10,
+    lineHeight: 40,
+  },
+  heroSub: {
+    color: "rgba(255,255,255,0.75)",
+    fontSize: theme.textSize.md,
+    lineHeight: 22,
+    marginBottom: theme.spacing.lg,
+  },
+  primaryButton: {
+    backgroundColor: "#FFFFFF",
+    paddingVertical: 14,
+    borderRadius: theme.radius.md,
+    alignItems: "center",
+    width: "80%",
+  },
+  primaryButtonText: {
+    color: "#1A1440",
+    fontSize: theme.textSize.md,
+    fontWeight: "900",
+  },
+
+  content: { padding: theme.spacing.lg },
+
+  card: {
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.radius.md,
+    padding: theme.spacing.lg,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    marginBottom: theme.spacing.lg,
+  },
+  cardTitle: {
+    color: theme.colors.muted,
+    fontSize: theme.textSize.sm,
     marginBottom: 8,
+    fontWeight: "700",
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  cardValue: {
+    color: theme.colors.text,
+    fontSize: theme.textSize.lg,
+    fontWeight: "900",
+    marginBottom: 6,
   },
+  cardHint: { color: theme.colors.muted, fontSize: theme.textSize.sm },
+
+  sectionTitle: {
+    color: theme.colors.text,
+    fontSize: theme.textSize.md,
+    fontWeight: "900",
+    marginBottom: theme.spacing.sm,
+  },
+  row: { flexDirection: "row", gap: theme.spacing.sm },
+  smallCard: {
+    flex: 1,
+    backgroundColor: theme.colors.surface2,
+    borderRadius: theme.radius.md,
+    padding: theme.spacing.md,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  smallCardTitle: {
+    color: theme.colors.text,
+    fontSize: theme.textSize.md,
+    fontWeight: "800",
+    marginBottom: 4,
+  },
+  smallCardHint: { color: theme.colors.muted, fontSize: theme.textSize.sm },
 });
