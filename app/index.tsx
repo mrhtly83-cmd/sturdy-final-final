@@ -112,9 +112,9 @@ export default function IntroScreen() {
           onScroll={scrollHandler}
           scrollEventThrottle={16}
           contentContainerStyle={{ paddingBottom: 24 }}
-          renderItem={({ item }) => (
+          renderItem={({ item, index }) => (
             <View style={{ width }}>
-              <SlideCard slide={item as any} />
+              <SlideCard slide={item} index={index} scrollX={scrollX} width={width} />
             </View>
           )}
         />
