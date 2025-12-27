@@ -154,19 +154,23 @@ export default function HomeScreen() {
           rightLabel="1 min"
         />
 
-        <FeatureCard
-          icon="lock-closed"
-          title="Describe the hard moment"
-          sub="Unlock after quiz"
-          locked
-        />
+        <Pressable onPress={() => router.push(("/paywall" as unknown) as any)}> 
+          <FeatureCard
+            icon="lock-closed"
+            title="Describe the hard moment"
+            sub="Unlock after quiz"
+            locked
+          />
+        </Pressable>
 
-        <FeatureCard
-          icon="sparkles"
-          title="Save words that worked for you"
-          sub="Tone + context tuned to your family."
-          locked
-        />
+        <Pressable onPress={() => router.push(("/paywall" as unknown) as any)}> 
+          <FeatureCard
+            icon="sparkles"
+            title="Save words that worked for you"
+            sub="Tone + context tuned to your family."
+            locked
+          />
+        </Pressable>
 
         <Text style={styles.takes}>Takes 2 minutes or less.</Text>
 
