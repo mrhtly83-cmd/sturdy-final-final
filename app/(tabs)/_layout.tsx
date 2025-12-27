@@ -21,6 +21,10 @@ export default function TabsLayout() {
       <Tabs.Screen name="explore" options={{ title: "Explore" }} />
       <Tabs.Screen name="alerts" options={{ title: "Alerts" }} />
       <Tabs.Screen name="profile" options={{ title: "Profile" }} />
+
+      {/* Hidden routes (still navigable via router.push) */}
+      <Tabs.Screen name="create" options={{ href: null }} />
+      <Tabs.Screen name="create2" options={{ href: null }} />
     </Tabs>
   );
 }
