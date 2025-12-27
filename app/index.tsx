@@ -16,7 +16,9 @@ import {
 } from "react-native";
 import Animated, {
   useAnimatedScrollHandler,
+  useAnimatedStyle,
   useSharedValue,
+  withTiming,
 } from "react-native-reanimated";
 
 const { width } = Dimensions.get("window");
@@ -116,6 +118,20 @@ export default function IntroScreen() {
             </View>
           )}
         />
+        {/* Pagination Dots */}
+<View style={styles.dotsRow}>
+  {slides.map((_, index) => {
+    const animatedDotStyle = useAnimatedStyle(() => {
+      const isActive = Math.abs(scrollX.value - width * index) < width / 2;
+      return {
+        width: withTiming(isActive ? 18 : 6, { duration: 250 }),
+        opacity: withTiming(isActive ? 1 : 0.4, { duration: 250 }),
+      };
+    });
+
+    return <Animated.View key={index} style={[styles.dot, animatedDotStyle]} />;
+  })}
+</View>
 
         {/* CTA */}
         <Pressable
@@ -228,4 +244,15 @@ const styles = StyleSheet.create({
     color: "rgba(255,255,255,0.5)",
     fontSize: 12,
   },
+  dotsRow: {
+  flexDirection: "row",
+  alignSelf: "center",
+  marginBottom: 24,
+},
+dot: {
+  height: 6,
+  borderRadius: 3,
+  backgroundColor: "white",
+  marginHorizontal: 4,
+},
 });
