@@ -1,5 +1,5 @@
 import { Video } from 'expo-av';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function IntroScreen({ navigation }) {
   return (
@@ -13,19 +13,27 @@ export default function IntroScreen({ navigation }) {
         style={StyleSheet.absoluteFill}
       />
       <View style={styles.overlay}>
-        <Text style={styles.headline}>
-          They’re crying. You’re tired. Let us help you say the right thing.
-        </Text>
-        <View style={styles.featureList}>
-          <Text style={styles.feature}>💬 Personalized emotional scripts</Text>
-          <Text style={styles.feature}>🧠 Psychology-backed calm coaching</Text>
-          <Text style={styles.feature}>👥 Sync with your co-parent</Text>
+        <Text style={styles.headline}>Trusted by 42k+ families</Text>
+
+        <Text style={[styles.headline, { fontSize: 26, marginTop: 12 }]}>Design the words that calm your home</Text>
+        <Text style={styles.feature}>Science-backed scripts to help you navigate big feelings and busy days with confidence.</Text>
+
+        <View style={[styles.featureList, { marginTop: 18 }]}>
+          <Text style={styles.feature}>Connection-first words you can trust.</Text>
+          <Text style={styles.feature}>Personalized in seconds — Three steps, then you’re ready</Text>
         </View>
+
+        <View style={{ marginTop: 12 }}>
+          <Text style={styles.feature}>Step 1 — Answer 3 questions: Kids, tone, what’s happening right now.</Text>
+          <Text style={styles.feature}>Step 2 — Get a calm script: AI generates language designed to reduce conflict.</Text>
+          <Text style={styles.feature}>Step 3 — Use & save: Copy it, speak it, and save to your journal.</Text>
+        </View>
+
         <TouchableOpacity
           style={styles.ctaButton}
           onPress={() => navigation.navigate('CreateFlow')}
         >
-          <Text style={styles.ctaText}>Start Creating Scripts</Text>
+          <Text style={styles.ctaText}>Start your free trial</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.skipButton}
@@ -77,7 +85,15 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   skipText: {
-    color: 'white',
-    opacity: 0.7,
-  },
-});
+            <TouchableOpacity
+              style={styles.ctaButton}
+              onPress={() => router.push('/quiz/child')}
+            >
+              <Text style={styles.ctaText}>Start your free trial</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.skipButton}
+              onPress={() => router.push('/')}
+            >
+              <Text style={styles.skipText}>Skip</Text>
+            </TouchableOpacity>

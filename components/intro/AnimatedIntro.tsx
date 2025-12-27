@@ -21,8 +21,7 @@ export default function AnimatedIntro() {
   const ctaOpacity = useRef(new Animated.Value(0)).current;
   const pulse = useRef(new Animated.Value(1)).current;
 
-  const fullText = "Calm words, on demand.";
-  const [displayText, setDisplayText] = useState("");
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     Animated.sequence([
@@ -64,7 +63,7 @@ export default function AnimatedIntro() {
           useNativeDriver: true,
         }),
       ]),
-    ]).start();
+    ]).start(() => setReady(true));
 
     Animated.loop(
       Animated.sequence([
@@ -80,15 +79,6 @@ export default function AnimatedIntro() {
         }),
       ])
     ).start();
-
-    let i = 0;
-    const interval = setInterval(() => {
-      setDisplayText(fullText.slice(0, i + 1));
-      i += 1;
-      if (i >= fullText.length) clearInterval(interval);
-    }, 45);
-
-    return () => clearInterval(interval);
   }, []);
 
   const handleContinue = () => {
@@ -171,8 +161,40 @@ export default function AnimatedIntro() {
             alignItems: "center",
           }}
         >
-          <Text style={styles.tagline}>{displayText}</Text>
-          <Text style={styles.subtext}>Support, exactly when you need it.</Text>
+          <Text style={styles.stat}>Trusted by 42k+ families</Text>
+          <Text style={styles.title}>Design the words that calm your home</Text>
+          <Text style={styles.lead}>Science-backed scripts to help you navigate big feelings and busy days with confidence.</Text>
+
+          <Text style={styles.smallHeading}>Connection-first words you can trust.</Text>
+
+          <View style={styles.stepsContainer}>
+            <Text style={styles.stepIntroBold}>Personalized in seconds</Text>
+            <Text style={styles.stepIntro}>Three steps, then you’re ready</Text>
+
+            <View style={styles.stepRow}>
+              <View style={styles.stepCard}>
+                <Text style={styles.stepNumber}>Step 1</Text>
+                <Text style={styles.stepTitle}>Answer 3 questions</Text>
+                <Text style={styles.stepBody}>Kids, tone, and what’s happening right now.</Text>
+              </View>
+
+              <View style={styles.stepCard}>
+                <Text style={styles.stepNumber}>Step 2</Text>
+                <Text style={styles.stepTitle}>Get a calm script</Text>
+                <Text style={styles.stepBody}>AI generates language designed to reduce conflict.</Text>
+              </View>
+            </View>
+
+            <View style={styles.stepRowSingle}>
+              <View style={styles.stepCardWide}>
+                <Text style={styles.stepNumber}>Step 3</Text>
+                <Text style={styles.stepTitle}>Use & save</Text>
+                <Text style={styles.stepBody}>Copy it, speak it, and save to your journal.</Text>
+              </View>
+            </View>
+
+            <Text style={styles.ctaIntro}>Ready to create calmer moments?</Text>
+          </View>
         </Animated.View>
 
         <Animated.View
@@ -182,12 +204,14 @@ export default function AnimatedIntro() {
               { scale: pulse },
             ],
             opacity: ctaOpacity,
-            marginTop: 28,
+            marginTop: 18,
           }}
         >
           <Pressable onPress={handleContinue} style={styles.ctaButton}>
-            <Text style={styles.ctaText}>Continue →</Text>
+            <Text style={styles.ctaText}>Start your free trial</Text>
           </Pressable>
+
+          <Text style={styles.footerText}>Tone + context tuned to your family. Ready when life happens — Built for big feelings and busy days.</Text>
         </Animated.View>
       </View>
     </View>
@@ -216,18 +240,88 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     letterSpacing: 1,
   },
-  tagline: {
-    color: "white",
-    fontSize: 20,
+  stat: {
+    color: "rgba(255,255,255,0.9)",
+    fontSize: 13,
     fontWeight: "700",
+    marginTop: 6,
+    letterSpacing: 0.6,
+  },
+  title: {
+    color: "white",
+    fontSize: 26,
+    fontWeight: "800",
     marginTop: 8,
     textAlign: "center",
+    lineHeight: 32,
   },
-  subtext: {
+  lead: {
+    color: "rgba(255,255,255,0.9)",
+    marginTop: 10,
+    fontSize: 15,
+    textAlign: "center",
+    paddingHorizontal: 8,
+  },
+  smallHeading: {
     color: "rgba(255,255,255,0.85)",
+    marginTop: 12,
+    fontSize: 14,
+    fontWeight: "600",
+    textAlign: "center",
+  },
+
+  stepsContainer: {
+    marginTop: 16,
+    width: "100%",
+    alignItems: "center",
+  },
+  stepIntroBold: {
+    color: "white",
+    fontWeight: "800",
+    fontSize: 16,
+  },
+  stepIntro: {
+    color: "rgba(255,255,255,0.8)",
+    marginTop: 4,
+    fontSize: 13,
+    marginBottom: 12,
+  },
+  stepRow: {
+    width: "100%",
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  stepRowSingle: {
+    width: "100%",
+    marginTop: 10,
+  },
+  stepCard: {
+    backgroundColor: "rgba(255,255,255,0.06)",
+    padding: 12,
+    borderRadius: 10,
+    width: (width - 28 * 2 - 12) / 2,
+  },
+  stepCardWide: {
+    backgroundColor: "rgba(255,255,255,0.06)",
+    padding: 12,
+    borderRadius: 10,
+    width: "100%",
+  },
+  stepNumber: {
+    color: "#FF9E7E",
+    fontWeight: "800",
+    fontSize: 12,
+  },
+  stepTitle: {
+    color: "white",
+    fontWeight: "700",
     marginTop: 6,
     fontSize: 14,
-    textAlign: "center",
+  },
+  stepBody: {
+    color: "rgba(255,255,255,0.85)",
+    marginTop: 6,
+    fontSize: 12,
   },
   ctaButton: {
     backgroundColor: "#FF9E7E",
@@ -243,6 +337,20 @@ const styles = StyleSheet.create({
     color: "white",
     fontWeight: "800",
     fontSize: 16,
+  },
+  ctaIntro: {
+    color: "white",
+    fontWeight: "700",
+    marginTop: 12,
+    fontSize: 15,
+    textAlign: "center",
+  },
+  footerText: {
+    color: "rgba(255,255,255,0.7)",
+    fontSize: 12,
+    marginTop: 12,
+    textAlign: "center",
+    paddingHorizontal: 24,
   },
   particlesContainer: {
     ...StyleSheet.absoluteFillObject,
