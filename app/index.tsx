@@ -1,16 +1,56 @@
 // app/index.tsx
 
+import SlideCard from "@/components/intro/SlideCard";
 import { Ionicons } from "@expo/vector-icons";
 import { ResizeMode, Video } from "expo-av";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import {
+  Dimensions,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import Animated, {
+  useAnimatedScrollHandler,
+  useSharedValue,
+} from "react-native-reanimated";
+
+const { width } = Dimensions.get("window");
+
+const slides = [
+  {
+    title: "Built for parents",
+    body: "Not every meltdown needs a manual. But when you need help, we’re here.",
+    icon: "people",
+    pill: "Start here",
+  },
+  {
+    title: "Science, not shame",
+    body: "Designed by psychologists. Backed by attachment research.",
+    icon: "sparkles",
+    pill: "Just real tools",
+  },
+  {
+    title: "Tailored to your child",
+    body: "Tone, context, and phrases calibrated to your unique family dynamic.",
+    icon: "person",
+    pill: "Your child is unique",
+  },
+];
 
 export default function IntroScreen() {
   const [isMuted, setIsMuted] = useState(true);
   const [showSkip, setShowSkip] = useState(false);
+
+  const scrollX = useSharedValue(0);
+
+  const scrollHandler = useAnimatedScrollHandler((event) => {
+    scrollX.value = event.contentOffset.x;
+  });
 
   useEffect(() => {
     const t = setTimeout(() => setShowSkip(true), 2500);
@@ -59,6 +99,23 @@ export default function IntroScreen() {
         <Text style={styles.subhead}>
           Calm, science-backed scripts designed for real parenting moments.
         </Text>
+
+        {/* Slides */}
+        <Animated.FlatList
+          data={slides}
+          keyExtractor={(_, index) => `slide-${index}`}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          onScroll={scrollHandler}
+          scrollEventThrottle={16}
+          contentContainerStyle={{ paddingBottom: 24 }}
+          renderItem={({ item }) => (
+            <View style={{ width }}>
+              <SlideCard slide={item as any} />
+            </View>
+          )}
+        />
 
         {/* CTA */}
         <Pressable
