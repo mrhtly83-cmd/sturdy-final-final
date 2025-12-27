@@ -1,25 +1,7 @@
 // app/index.tsx
 
-import SlideCard from "@/components/intro/SlideCard";
-import { Ionicons } from "@expo/vector-icons";
-import { ResizeMode, Video } from "expo-av";
-import { BlurView } from "expo-blur";
-import { LinearGradient } from "expo-linear-gradient";
-import { router } from "expo-router";
-import { useEffect, useState } from "react";
-import {
-  Dimensions,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
-import Animated, {
-  useAnimatedScrollHandler,
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from "react-native-reanimated";
+import AnimatedIntro from "@/components/intro/AnimatedIntro";
+import { Dimensions, StyleSheet } from "react-native";
 
 const { width } = Dimensions.get("window");
 
@@ -45,126 +27,7 @@ const slides = [
 ];
 
 export default function IntroScreen() {
-  const [isMuted, setIsMuted] = useState(true);
-  const [showSkip, setShowSkip] = useState(false);
-
-  const scrollX = useSharedValue(0);
-
-  const scrollHandler = useAnimatedScrollHandler((event) => {
-    scrollX.value = event.contentOffset.x;
-  });
-
-  useEffect(() => {
-    const t = setTimeout(() => setShowSkip(true), 2500);
-    return () => clearTimeout(t);
-  }, []);
-
-  return (
-    <View style={styles.container}>
-      {/* Background Video */}
-      <Video
-        source={require("../assets/videos/hero.mp4")}
-        style={StyleSheet.absoluteFill}
-        resizeMode={ResizeMode.COVER}
-        shouldPlay
-        isLooping
-        isMuted={isMuted}
-      />
-
-      {/* Tap anywhere to unmute */}
-      <Pressable
-        style={StyleSheet.absoluteFill}
-        onPress={() => setIsMuted((m) => !m)}
-      />
-
-      {/* Dark overlay */}
-      <LinearGradient
-        colors={[
-          "rgba(11,15,23,0.25)",
-          "rgba(11,15,23,0.65)",
-          "rgba(11,15,23,0.95)",
-        ]}
-        style={StyleSheet.absoluteFill}
-      />
-
-      <View style={styles.content}>
-        {/* Brand */}
-        <Text style={styles.brand}>STURDY</Text>
-
-        {/* Headline */}
-        <Text style={styles.headline}>
-          When your child is melting down and you don’t know what to say —
-          we help you find the words.
-        </Text>
-
-        {/* Subhead */}
-        <Text style={styles.subhead}>
-          Calm, science-backed scripts designed for real parenting moments.
-        </Text>
-
-        {/* Slides */}
-        <Animated.FlatList
-          data={slides}
-          keyExtractor={(_, index) => `slide-${index}`}
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          onScroll={scrollHandler}
-          scrollEventThrottle={16}
-          contentContainerStyle={{ paddingBottom: 24 }}
-          renderItem={({ item, index }) => (
-            <View style={{ width }}>
-              <SlideCard slide={item} index={index} scrollX={scrollX} width={width} />
-            </View>
-          )}
-        />
-        {/* Pagination Dots */}
-<View style={styles.dotsRow}>
-  {slides.map((_, index) => {
-    const animatedDotStyle = useAnimatedStyle(() => {
-      const isActive = Math.abs(scrollX.value - width * index) < width / 2;
-      return {
-        width: withTiming(isActive ? 18 : 6, { duration: 250 }),
-        opacity: withTiming(isActive ? 1 : 0.4, { duration: 250 }),
-      };
-    });
-
-    return <Animated.View key={index} style={[styles.dot, animatedDotStyle]} />;
-  })}
-</View>
-
-        {/* CTA */}
-        <Pressable
-          style={styles.cta}
-          onPress={() => router.push("/quiz/child")}
-        >
-          <BlurView intensity={20} tint="dark" style={styles.ctaGlass}>
-            <Text style={styles.ctaText}>Help me find the words</Text>
-            <Ionicons name="chevron-forward" size={18} color="white" />
-          </BlurView>
-        </Pressable>
-
-        {/* Unmute hint */}
-        <Text style={styles.hint}>
-          {isMuted ? "Tap anywhere to unmute" : "Sound on"}
-        </Text>
-
-        {/* Skip */}
-        {showSkip && (
-          <Pressable
-            style={styles.skip}
-            onPress={() => router.replace("/(tabs)")}
-          >
-            <Text style={styles.skipText}>Skip intro</Text>
-          </Pressable>
-        )}
-
-        <Text style={styles.footer}>
-          Built for big feelings. No judgment. Just support.
-        </Text>
-      </View>
-    </View>
-  );
+  return <AnimatedIntro />;
 }
 
 const styles = StyleSheet.create({
