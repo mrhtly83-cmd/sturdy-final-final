@@ -1,5 +1,5 @@
 import React from "react";
-import { Text, View, TouchableOpacity, Alert } from "react-native";
+import { Alert, Text, TouchableOpacity, View } from "react-native";
 import { checkFreeLimitOrPaywall, incrementFreeCount, maybeShowFirstSuccessUpsell } from "../../src/lib/freeUsage";
 
 export default function ChallengeStep() {

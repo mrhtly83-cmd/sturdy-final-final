@@ -1,5 +1,5 @@
-import { Alert } from "react-native";
 import { router } from "expo-router";
+import { Alert } from "react-native";
 
 const FREE_LIMIT = 5;
 const KEY_COUNT = "free_scripts_used";
