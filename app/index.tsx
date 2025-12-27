@@ -4,100 +4,119 @@ import { ResizeMode, Video } from "expo-av";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
-import React from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import React, { useEffect, useMemo, useRef } from "react";
+import {
+  Animated,
+  Easing,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
-/* ------------------ Feature Card ------------------ */
-function FeatureCard({
+type PopAnim = {
+  opacity: Animated.Value;
+  translateY: Animated.Value;
+  scale: Animated.Value;
+};
+
+function usePopIn(delayMs: number) {
+  const anim = useRef<PopAnim>({
+    opacity: new Animated.Value(0),
+    translateY: new Animated.Value(16),
+    scale: new Animated.Value(0.98),
+  }).current;
+
+  useEffect(() => {
+    const ease = Easing.out(Easing.cubic);
+
+    Animated.sequence([
+      Animated.delay(delayMs),
+      Animated.parallel([
+        Animated.timing(anim.opacity, {
+          toValue: 1,
+          duration: 520,
+          easing: ease,
+          useNativeDriver: true,
+        }),
+        Animated.timing(anim.translateY, {
+          toValue: 0,
+          duration: 520,
+          easing: ease,
+          useNativeDriver: true,
+        }),
+        Animated.timing(anim.scale, {
+          toValue: 1,
+          duration: 520,
+          easing: ease,
+          useNativeDriver: true,
+        }),
+      ]),
+    ]).start();
+  }, [anim, delayMs]);
+
+  const style = useMemo(
+    () => ({
+      opacity: anim.opacity,
+      transform: [{ translateY: anim.translateY }, { scale: anim.scale }],
+    }),
+    [anim.opacity, anim.scale, anim.translateY]
+  );
+
+  return style;
+}
+
+function GlassRow({
   icon,
   title,
   sub,
-  rightLabel,
-  locked,
 }: {
   icon: React.ComponentProps<typeof Ionicons>["name"];
   title: string;
-  sub?: string;
-  rightLabel?: string;
-  locked?: boolean;
+  sub: string;
 }) {
   return (
-    <BlurView intensity={28} tint="dark" style={[styles.card, locked && styles.cardLocked]}>
+    <BlurView intensity={22} tint="dark" style={styles.featureCard}>
       <LinearGradient
         colors={[
-          "rgba(255,255,255,0.10)",
-          "rgba(255,255,255,0.03)",
-          "rgba(0,0,0,0.08)",
+          "rgba(255,255,255,0.12)",
+          "rgba(255,255,255,0.04)",
+          "rgba(0,0,0,0.12)",
         ]}
         style={StyleSheet.absoluteFill}
       />
-      <View style={styles.cardBorder} />
-
-      <View style={styles.cardRow}>
-        <View style={styles.leftIcon}>
+      <View style={styles.featureBorder} />
+      <View style={styles.featureRow}>
+        <View style={styles.featureIconWrap}>
           <LinearGradient
-            colors={["rgba(124,92,255,0.85)", "rgba(77,208,161,0.55)"]}
-            style={styles.leftIconBg}
+            colors={["rgba(77,208,161,0.60)", "rgba(124,92,255,0.40)"]}
+            style={StyleSheet.absoluteFill}
           />
-          <Ionicons name={icon} size={18} color="white" />
+          <Ionicons name={icon} size={18} color="rgba(255,255,255,0.92)" />
         </View>
 
         <View style={{ flex: 1 }}>
-          <Text style={styles.cardTitle}>{title}</Text>
-          {!!sub && <Text style={styles.cardSub}>{sub}</Text>}
-        </View>
-
-        <View style={styles.rightMeta}>
-          {!!rightLabel && <Text style={styles.rightLabel}>{rightLabel}</Text>}
-          {locked && (
-            <Ionicons
-              name="lock-closed"
-              size={18}
-              color="rgba(255,255,255,0.65)"
-            />
-          )}
+          <Text style={styles.featureTitle}>{title}</Text>
+          <Text style={styles.featureSub}>{sub}</Text>
         </View>
       </View>
     </BlurView>
   );
 }
 
-/* ------------------ Sparkles ------------------ */
-function Sparkles() {
-  const sparkles = Array.from({ length: 18 });
+export default function IntroScreen() {
+  // Pop-in animations (staggered)
+  const aBrand = usePopIn(140);
+  const aPill = usePopIn(240);
+  const aHero = usePopIn(340);
+  const aSub = usePopIn(440);
+  const aFeatures = usePopIn(560);
+  const aHow = usePopIn(680);
+  const aCta = usePopIn(820);
 
-  return (
-    <View pointerEvents="none" style={StyleSheet.absoluteFill}>
-      {sparkles.map((_, i) => {
-        const size = Math.random() * 3 + 2;
-        const left = Math.random() * 100;
-        const top = Math.random() * 100;
-
-        return (
-          <View
-            key={i}
-            style={[
-              styles.sparkle,
-              {
-                width: size,
-                height: size,
-                left: `${left}%`,
-                top: `${top}%`,
-                opacity: 0.12 + Math.random() * 0.22,
-              },
-            ]}
-          />
-        );
-      })}
-    </View>
-  );
-}
-
-/* ------------------ Home Screen ------------------ */
-export default function HomeScreen() {
   return (
     <View style={styles.container}>
-      {/* Video Background */}
+      {/* Background Video */}
       <Video
         source={require("../assets/videos/hero.mp4")}
         style={StyleSheet.absoluteFill}
@@ -107,207 +126,273 @@ export default function HomeScreen() {
         isMuted
       />
 
-      {/* Sparkles */}
-      <Sparkles />
-
-      {/* Dark overlay for readability */}
+      {/* Readability overlay */}
       <LinearGradient
         colors={[
-          "rgba(0,0,0,0.15)",
+          "rgba(0,0,0,0.10)",
           "rgba(0,0,0,0.35)",
-          "rgba(0,0,0,0.62)",
+          "rgba(0,0,0,0.72)",
+          "rgba(0,0,0,0.92)",
         ]}
-        locations={[0, 0.55, 1]}
+        locations={[0, 0.45, 0.78, 1]}
         style={StyleSheet.absoluteFill}
       />
 
       <View style={styles.content}>
-        {/* Logo */}
-        <View style={styles.logoRow}>
-          <LinearGradient
-            colors={["rgba(124,92,255,0.95)", "rgba(77,208,161,0.75)"]}
-            style={styles.logoBadge}
-          />
-          <Text style={styles.brand}>STURDY</Text>
-        </View>
-
-        {/* Headline */}
-        <Text style={styles.headline}>
-          Let’s design the words that calm your home.
-        </Text>
-
-        <Text style={styles.subhead}>
-          When emotions run high and you don’t know what to say — we help you find the words.
-        </Text>
-
-        <Text style={styles.subhead}>
-          Answer a few quick questions to get calm, science-backed words you can use right away.
-        </Text>
-
-        <View style={{ height: 18 }} />
-
-        {/* Cards */}
-        <FeatureCard
-          icon="people"
-          title="Tell us about your child"
-          sub="1 min."
-          rightLabel="1 min"
-        />
-
-        <Pressable onPress={() => router.push(("/paywall" as unknown) as any)}> 
-          <FeatureCard
-            icon="lock-closed"
-            title="Describe the hard moment"
-            sub="Unlock after quiz"
-            locked
-          />
-        </Pressable>
-
-        <Pressable onPress={() => router.push(("/paywall" as unknown) as any)}> 
-          <FeatureCard
-            icon="sparkles"
-            title="Save words that worked for you"
-            sub="Tone + context tuned to your family."
-            locked
-          />
-        </Pressable>
-
-        <Text style={styles.takes}>Takes 2 minutes or less.</Text>
-
-        {/* CTA */}
-        <Pressable
-          onPress={() => router.push("/quiz/child")}
-          style={styles.ctaWrap}
-        >
-          <BlurView intensity={20} tint="dark" style={styles.ctaGlass}>
+        <Animated.View style={[styles.brandRow, aBrand]}>
+          <View style={styles.brandBadge}>
             <LinearGradient
-              colors={[
-                "rgba(77,208,161,0.65)",
-                "rgba(124,92,255,0.35)",
-              ]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
+              colors={["rgba(124,92,255,0.95)", "rgba(77,208,161,0.78)"]}
               style={StyleSheet.absoluteFill}
             />
-            <Text style={styles.ctaText}>Help me find the words</Text>
-            <Ionicons
-              name="chevron-forward"
-              size={18}
-              color="rgba(255,255,255,0.9)"
-            />
-          </BlurView>
-        </Pressable>
+          </View>
+          <Text style={styles.brandText}>STURDY</Text>
+        </Animated.View>
 
-        <Text style={styles.footer}>Built for big feelings and busy days.</Text>
-        <Text style={styles.footer}>No judgment. Just support.</Text>
+        <Animated.View style={[styles.pillWrap, aPill]}>
+          <BlurView intensity={18} tint="dark" style={styles.pill}>
+            <Text style={styles.pillText}>Trusted by 42k+ families</Text>
+          </BlurView>
+        </Animated.View>
+
+        <Animated.View style={aHero}>
+          <Text style={styles.headline}>Welcome.</Text>
+          <Text style={styles.headline2}>Design the words that calm your home.</Text>
+        </Animated.View>
+
+        <Animated.View style={aSub}>
+          <Text style={styles.subhead}>
+            Science-backed scripts to help you navigate big feelings and busy days
+            with confidence.
+          </Text>
+        </Animated.View>
+
+        <Animated.View style={aFeatures}>
+          <Text style={styles.sectionTitle}>What Sturdy offers</Text>
+
+          <GlassRow
+            icon="sparkles"
+            title="Calm words, on demand"
+            sub="Everything is designed to feel steady, supportive, and fast."
+          />
+          <GlassRow
+            icon="shield-checkmark"
+            title="Science-backed scripts"
+            sub="Connection-first words you can trust."
+          />
+          <GlassRow
+            icon="flash"
+            title="Personalized in seconds"
+            sub="Tone + context tuned to your family."
+          />
+          <GlassRow
+            icon="time"
+            title="Ready when life happens"
+            sub="Built for big feelings and busy days."
+          />
+        </Animated.View>
+
+        <Animated.View style={aHow}>
+          <Text style={styles.sectionTitle}>How it works</Text>
+
+          <View style={styles.stepsRow}>
+            <View style={styles.step}>
+              <Text style={styles.stepKicker}>Step 1</Text>
+              <Text style={styles.stepTitle}>Answer 3 questions</Text>
+              <Text style={styles.stepSub}>Kids, tone, and what’s happening now.</Text>
+            </View>
+
+            <View style={styles.step}>
+              <Text style={styles.stepKicker}>Step 2</Text>
+              <Text style={styles.stepTitle}>Get a calm script</Text>
+              <Text style={styles.stepSub}>
+                AI generates language designed to reduce conflict.
+              </Text>
+            </View>
+
+            <View style={styles.step}>
+              <Text style={styles.stepKicker}>Step 3</Text>
+              <Text style={styles.stepTitle}>Use & save</Text>
+              <Text style={styles.stepSub}>
+                Copy it, speak it, and save to your journal.
+              </Text>
+            </View>
+          </View>
+        </Animated.View>
+
+        <Animated.View style={[styles.ctaBlock, aCta]}>
+          <Pressable onPress={() => router.push("/quiz/child")} style={styles.ctaWrap}>
+            <BlurView intensity={22} tint="dark" style={styles.ctaGlass}>
+              <LinearGradient
+                colors={["rgba(77,208,161,0.65)", "rgba(124,92,255,0.35)"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={StyleSheet.absoluteFill}
+              />
+              <Text style={styles.ctaText}>Get my first script</Text>
+              <Ionicons
+                name="chevron-forward"
+                size={18}
+                color="rgba(255,255,255,0.9)"
+              />
+            </BlurView>
+          </Pressable>
+
+          <Text style={styles.footer}>No judgment. Just support.</Text>
+        </Animated.View>
       </View>
     </View>
   );
 }
 
-/* ------------------ Styles ------------------ */
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "black" },
 
   content: {
     flex: 1,
-    paddingHorizontal: 22,
+    paddingHorizontal: 20,
     paddingTop: 56,
-    paddingBottom: 34,
-    justifyContent: "flex-end",
+    paddingBottom: 28,
   },
 
-  logoRow: {
+  brandRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
-    marginBottom: 14,
+    marginBottom: 12,
   },
-  logoBadge: {
+  brandBadge: {
     width: 22,
     height: 22,
     borderRadius: 7,
-    opacity: 0.9,
+    overflow: "hidden",
+    opacity: 0.95,
   },
-  brand: {
+  brandText: {
     color: "rgba(255,255,255,0.92)",
     fontSize: 16,
-    fontWeight: "800",
+    fontWeight: "900",
     letterSpacing: 3,
+  },
+
+  pillWrap: { marginBottom: 14 },
+  pill: {
+    alignSelf: "flex-start",
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.14)",
+    overflow: "hidden",
+  },
+  pillText: {
+    color: "rgba(255,255,255,0.78)",
+    fontSize: 12.5,
+    fontWeight: "700",
+    letterSpacing: 0.2,
   },
 
   headline: {
     color: "rgba(255,255,255,0.92)",
-    fontSize: 30,
-    lineHeight: 36,
-    fontWeight: "700",
-    textAlign: "center",
-    marginBottom: 10,
+    fontSize: 34,
+    lineHeight: 38,
+    fontWeight: "900",
+  },
+  headline2: {
+    marginTop: 6,
+    color: "rgba(255,255,255,0.92)",
+    fontSize: 24,
+    lineHeight: 30,
+    fontWeight: "800",
   },
 
   subhead: {
+    marginTop: 12,
     color: "rgba(255,255,255,0.72)",
-    fontSize: 15,
-    lineHeight: 21,
-    textAlign: "center",
-    marginBottom: 6,
+    fontSize: 15.5,
+    lineHeight: 22,
+    fontWeight: "600",
   },
 
-  card: {
-    borderRadius: 22,
+  sectionTitle: {
+    marginTop: 18,
+    marginBottom: 10,
+    color: "rgba(255,255,255,0.85)",
+    fontSize: 13,
+    fontWeight: "900",
+    letterSpacing: 1.2,
+    textTransform: "uppercase",
+  },
+
+  featureCard: {
+    borderRadius: 20,
     overflow: "hidden",
-    paddingVertical: 14,
-    paddingHorizontal: 14,
-    marginBottom: 14,
+    padding: 14,
+    marginBottom: 10,
   },
-  cardBorder: {
+  featureBorder: {
     ...StyleSheet.absoluteFillObject,
-    borderRadius: 22,
+    borderRadius: 20,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.18)",
+    borderColor: "rgba(255,255,255,0.16)",
   },
-  cardRow: { flexDirection: "row", alignItems: "center", gap: 12 },
-  cardLocked: { opacity: 0.72 },
-
-  leftIcon: {
+  featureRow: { flexDirection: "row", alignItems: "center", gap: 12 },
+  featureIconWrap: {
     width: 40,
     height: 40,
     borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.14)",
   },
-  leftIconBg: { ...StyleSheet.absoluteFillObject },
-
-  cardTitle: {
+  featureTitle: {
     color: "rgba(255,255,255,0.92)",
-    fontSize: 16,
-    fontWeight: "700",
+    fontSize: 15.5,
+    fontWeight: "800",
   },
-  cardSub: {
+  featureSub: {
     marginTop: 3,
     color: "rgba(255,255,255,0.62)",
     fontSize: 13,
+    lineHeight: 18,
     fontWeight: "600",
   },
 
-  rightMeta: { alignItems: "flex-end", gap: 6, minWidth: 52 },
-  rightLabel: {
-    color: "rgba(255,255,255,0.62)",
+  stepsRow: {
+    gap: 10,
+  },
+  step: {
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.14)",
+    backgroundColor: "rgba(0,0,0,0.20)",
+    padding: 12,
+  },
+  stepKicker: {
+    color: "rgba(255,255,255,0.60)",
     fontSize: 12,
-    fontWeight: "700",
+    fontWeight: "900",
+    letterSpacing: 1.1,
+    textTransform: "uppercase",
   },
-
-  takes: {
-    marginTop: 2,
-    marginBottom: 14,
-    textAlign: "center",
-    color: "rgba(255,255,255,0.55)",
+  stepTitle: {
+    marginTop: 4,
+    color: "rgba(255,255,255,0.90)",
+    fontSize: 15,
+    fontWeight: "800",
+  },
+  stepSub: {
+    marginTop: 4,
+    color: "rgba(255,255,255,0.62)",
     fontSize: 13,
+    lineHeight: 18,
     fontWeight: "600",
   },
 
-  ctaWrap: { marginTop: 6 },
+  ctaBlock: { marginTop: 16 },
+  ctaWrap: { marginTop: 2 },
   ctaGlass: {
     height: 56,
     borderRadius: 999,
@@ -322,24 +407,15 @@ const styles = StyleSheet.create({
   ctaText: {
     color: "rgba(255,255,255,0.92)",
     fontSize: 16,
-    fontWeight: "800",
+    fontWeight: "900",
     letterSpacing: 0.2,
   },
 
   footer: {
-    marginTop: 16,
+    marginTop: 12,
     textAlign: "center",
     color: "rgba(255,255,255,0.55)",
     fontSize: 13,
-    fontWeight: "600",
-  },
-
-  sparkle: {
-    position: "absolute",
-    borderRadius: 999,
-    backgroundColor: "rgba(255,220,180,0.9)",
-    shadowColor: "#ffffff",
-    shadowOpacity: 0.6,
-    shadowRadius: 8,
+    fontWeight: "700",
   },
 });
