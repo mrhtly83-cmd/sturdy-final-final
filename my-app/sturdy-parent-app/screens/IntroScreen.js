@@ -1,3 +1,4 @@
+import React from 'react';
 import { Video } from 'expo-av';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
@@ -5,20 +6,21 @@ export default function IntroScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <Video
-        source={require('../assets/videos/background.mp4')}
+        source={require('../../../assets/videos/hero.mp4')}
         resizeMode="cover"
         shouldPlay
         isLooping
         isMuted
         style={StyleSheet.absoluteFill}
       />
+
       <View style={styles.overlay}>
         <Text style={styles.headline}>Trusted by 42k+ families</Text>
 
         <Text style={[styles.headline, { fontSize: 26, marginTop: 12 }]}>Design the words that calm your home</Text>
         <Text style={styles.feature}>Science-backed scripts to help you navigate big feelings and busy days with confidence.</Text>
 
-        <View style={[styles.featureList, { marginTop: 18 }]}>
+        <View style={[styles.featureList, { marginTop: 18 }]}> 
           <Text style={styles.feature}>Connection-first words you can trust.</Text>
           <Text style={styles.feature}>Personalized in seconds — Three steps, then you’re ready</Text>
         </View>
@@ -85,15 +87,8 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   skipText: {
+    color: 'white',
+    fontSize: 15,
+  },
+});
             <TouchableOpacity
-              style={styles.ctaButton}
-              onPress={() => router.push('/quiz/child')}
-            >
-              <Text style={styles.ctaText}>Start your free trial</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.skipButton}
-              onPress={() => router.push('/')}
-            >
-              <Text style={styles.skipText}>Skip</Text>
-            </TouchableOpacity>

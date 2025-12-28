@@ -1,53 +1,81 @@
 import { Video } from 'expo-av';
+import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
-import React, { useEffect, useState } from 'react';
-import { Animated, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { AccessibilityInfo, Animated, Image, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function IntroScreen({ navigation }: any) {
-  const [fadeAnim] = useState(new Animated.Value(0));
   const [expanded, setExpanded] = useState(false);
+  const logoY = useRef(new Animated.Value(-18)).current;
+  const headingOpacity = useRef(new Animated.Value(0)).current;
+  const cardsOpacity = useRef(new Animated.Value(0)).current;
+  const buttonScale = useRef(new Animated.Value(1)).current;
+  const [reduceMotion, setReduceMotion] = useState(false);
 
   useEffect(() => {
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 2000,
-      useNativeDriver: true,
-    }).start();
-  }, []);
+    AccessibilityInfo.isReduceMotionEnabled().then((value) => setReduceMotion(!!value));
+
+    if (Platform.OS === 'web') {
+      try {
+        const mq = (window as any).matchMedia && (window as any).matchMedia('(prefers-reduced-motion: reduce)');
+        if (mq && mq.matches) setReduceMotion(true);
+      } catch {}
+    }
+
+    if (reduceMotion) {
+      logoY.setValue(0);
+      headingOpacity.setValue(1);
+      cardsOpacity.setValue(1);
+      buttonScale.setValue(1);
+      return;
+    }
+
+    Animated.sequence([
+      Animated.timing(logoY, { toValue: 0, duration: 600, useNativeDriver: true }),
+      Animated.timing(headingOpacity, { toValue: 1, duration: 700, useNativeDriver: true }),
+      Animated.timing(cardsOpacity, { toValue: 1, duration: 700, useNativeDriver: true }),
+    ]).start();
+  }, [logoY, headingOpacity, cardsOpacity, buttonScale, reduceMotion]);
+
+  const features = [
+    { key: 'calm', title: 'Calm words, on demand', subtitle: 'Ready when life happens.' },
+    { key: 'science', title: 'Science-backed', subtitle: 'Connection-first words you can trust.' },
+    { key: 'personal', title: 'Personalized in seconds', subtitle: 'Tone + context tuned to your family.' },
+  ];
 
   const Content = (
-    <Animated.View style={{ ...styles.content, opacity: fadeAnim }}>
-      <Image source={require('../../assets/sturdy_logo.png')} style={styles.logo} />
-      <Text style={[styles.title, { fontSize: 13, fontWeight: '700' }]}>Trusted by 42k+ families</Text>
+    <View style={styles.contentWrapper} pointerEvents="box-none">
+      <Animated.View style={[styles.logoWrap, { transform: [{ translateY: logoY }] }] }>
+        <Image source={require('../../assets/sturdy_logo.png')} style={styles.logo} />
+      </Animated.View>
 
-      <Text style={[styles.title, { fontSize: 26, fontWeight: '800', marginTop: 12 }]}>Design the words that calm your home</Text>
-      <Text style={styles.subtitle}>Science-backed scripts to help you navigate big feelings and busy days with confidence.</Text>
+      <View style={styles.centerContent}>
+        <Animated.Text style={[styles.title, { opacity: headingOpacity }]}>Calm words, on demand.</Animated.Text>
+        <Animated.Text style={[styles.subtitle, { opacity: headingOpacity, marginTop: 12 }]}>Science-backed scripts that help you stay connected and confident when parenting gets tough.</Animated.Text>
 
-      {!expanded && (
-        <TouchableOpacity onPress={() => setExpanded(true)} style={styles.learnMore}>
-          <Text style={styles.learnMoreText}>How it works</Text>
+        <Animated.View style={[styles.features, { opacity: cardsOpacity }]}>
+          {features.map((f) => (
+            <BlurView key={f.key} intensity={40} tint="dark" style={styles.card}>
+              <Text style={styles.cardTitle}>{f.title}</Text>
+              <Text style={styles.cardSubtitle}>{f.subtitle}</Text>
+            </BlurView>
+          ))}
+        </Animated.View>
+      </View>
+
+      <View style={styles.bottomArea}>
+        <TouchableOpacity
+          activeOpacity={0.9}
+          style={styles.buttonWrap}
+          onPress={() => router.push('/quiz/child')}
+        >
+          <LinearGradient colors={["#40D98A", "#2ABF9E"]} style={styles.buttonGradient}>
+            <Animated.Text style={[styles.buttonText, { transform: [{ scale: buttonScale }] }]}>Continue ➜</Animated.Text>
+          </LinearGradient>
         </TouchableOpacity>
-      )}
-
-      {expanded && (
-        <View style={{ marginTop: 12, alignItems: 'center' }}>
-          <Text style={styles.subtitle}>Connection-first words you can trust.</Text>
-          <Text style={styles.subtitle}>Personalized in seconds — Three steps, then you’re ready</Text>
-
-          <Text style={styles.subtitle}>Step 1 — Answer 3 quick questions.</Text>
-          <Text style={styles.subtitle}>Step 2 — Get a calm script generated for your moment.</Text>
-          <Text style={styles.subtitle}>Step 3 — Use, save, and revisit anytime.</Text>
-
-          <TouchableOpacity onPress={() => setExpanded(false)} style={{ marginTop: 8 }}>
-            <Text style={[styles.learnMoreText, { opacity: 0.9 }]}>Show less</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-
-      <TouchableOpacity style={styles.button} onPress={() => router.push('/quiz/child')}>
-        <Text style={styles.buttonText}>Start your free trial</Text>
-      </TouchableOpacity>
-    </Animated.View>
+      </View>
+    </View>
   );
 
   return (
@@ -72,10 +100,12 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#000' },
   background: { position: 'absolute', width: '100%', height: '100%' },
   backgroundImage: { position: 'absolute', width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center' },
-  content: { alignItems: 'center', paddingHorizontal: 20 },
-  logo: { width: 120, height: 120, marginBottom: 20, resizeMode: 'contain' },
-  title: { fontSize: 28, color: '#fff', fontWeight: '600', textAlign: 'center' },
-  subtitle: { fontSize: 16, color: 'rgba(255,255,255,0.85)', marginTop: 8, marginBottom: 32, textAlign: 'center', paddingHorizontal: 24 },
+  contentWrapper: { flex: 1, justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 28 },
+  logoWrap: { alignItems: 'center', marginTop: 10 },
+  logo: { width: 92, height: 92, resizeMode: 'contain' },
+  centerContent: { alignItems: 'center', paddingHorizontal: 20 },
+  title: { fontSize: 30, color: '#fff', fontWeight: '800', textAlign: 'center', textShadowColor: 'rgba(0,0,0,0.6)', textShadowOffset: { width: 0, height: 2 }, textShadowRadius: 6 },
+  subtitle: { fontSize: 16, color: 'rgba(255,255,255,0.88)', marginTop: 8, lineHeight: 22, textAlign: 'center', paddingHorizontal: 24 },
   button: {
     backgroundColor: '#70e000',
     paddingVertical: 12,
@@ -83,8 +113,15 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     elevation: 2,
   },
-  buttonText: { color: '#fff', fontWeight: '700', fontSize: 16 },
+  buttonWrap: { width: '80%', alignItems: 'center' },
+  buttonGradient: { width: '100%', paddingVertical: 14, borderRadius: 999, alignItems: 'center' },
+  buttonText: { color: '#fff', fontWeight: '800', fontSize: 17 },
   videoOverlay: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20 },
   learnMore: { marginTop: 12, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 18, backgroundColor: 'rgba(0,0,0,0.35)' },
   learnMoreText: { color: 'white', fontSize: 15, fontWeight: '600' },
+  features: { marginTop: 18, width: '100%', alignItems: 'center' },
+  card: { width: '86%', padding: 12, borderRadius: 14, marginVertical: 8, backgroundColor: 'rgba(255,255,255,0.06)' },
+  cardTitle: { color: 'white', fontSize: 16, fontWeight: '700' },
+  cardSubtitle: { color: 'rgba(255,255,255,0.85)', fontSize: 13, marginTop: 4 },
+  bottomArea: { width: '100%', alignItems: 'center', marginBottom: 8 },
 });
