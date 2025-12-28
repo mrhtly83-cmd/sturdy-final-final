@@ -5,6 +5,7 @@
   "scripts": {
     "start": "expo start",
     "dev": "expo start",
+    "build": "expo-router build",
     "reset-project": "node ./scripts/reset-project.js",
     "android": "expo start --android",
     "ios": "expo start --ios",
@@ -51,10 +52,12 @@
   },
   "devDependencies": {
     "@types/react": "~19.1.0",
+    "@vitejs/plugin-react": "^5.1.2",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~10.0.0",
     "expo-module-scripts": "^5.0.8",
-    "typescript": "~5.9.2"
+    "typescript": "~5.9.2",
+    "vite": "^7.3.0"
   },
   "private": true,
   "description": "This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).",
