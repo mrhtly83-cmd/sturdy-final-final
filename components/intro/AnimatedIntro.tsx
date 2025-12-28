@@ -1,6 +1,6 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import {
     Animated,
     Dimensions,
@@ -10,7 +10,7 @@ import {
     View,
 } from "react-native";
 
-const { width, height } = Dimensions.get("window");
+const { width } = Dimensions.get("window");
 
 export default function AnimatedIntro() {
   const logoScale = useRef(new Animated.Value(0.86)).current;
@@ -21,7 +21,9 @@ export default function AnimatedIntro() {
   const ctaOpacity = useRef(new Animated.Value(0)).current;
   const pulse = useRef(new Animated.Value(1)).current;
 
-  const [ready, setReady] = useState(false);
+  const particleAnims = useRef(
+    Array.from({ length: 6 }).map(() => new Animated.Value(0))
+  ).current;
 
   useEffect(() => {
     Animated.sequence([
@@ -63,7 +65,7 @@ export default function AnimatedIntro() {
           useNativeDriver: true,
         }),
       ]),
-    ]).start(() => setReady(true));
+    ]).start();
 
     Animated.loop(
       Animated.sequence([
@@ -79,21 +81,28 @@ export default function AnimatedIntro() {
         }),
       ])
     ).start();
-  }, []);
+  }, [
+    ctaOpacity,
+    ctaTranslate,
+    logoOpacity,
+    logoScale,
+    pulse,
+    taglineOpacity,
+    taglineTranslate,
+  ]);
 
   const handleContinue = () => {
     try {
       router.push("/quiz/child");
-    } catch (e) {
+    } catch {
       // fallback: no router available in tests
       // console.warn(e);
     }
   };
 
   // simple decorative particles
-  const particles = Array.from({ length: 6 }).map((_, i) => {
-    const anim = useRef(new Animated.Value(0)).current;
-    useEffect(() => {
+  useEffect(() => {
+    particleAnims.forEach((anim, i) => {
       Animated.loop(
         Animated.sequence([
           Animated.timing(anim, {
@@ -109,14 +118,19 @@ export default function AnimatedIntro() {
           }),
         ])
       ).start();
-    }, []);
+    });
+  }, [particleAnims]);
 
+  const particles = particleAnims.map((anim, i) => {
     const left = 12 + i * ((width - 48) / 6);
     const translateY = anim.interpolate({
       inputRange: [0, 1],
       outputRange: [0, -18 - (i % 3) * 6],
     });
-    const opacity = anim.interpolate({ inputRange: [0, 0.6, 1], outputRange: [0, 0.9, 0] });
+    const opacity = anim.interpolate({
+      inputRange: [0, 0.6, 1],
+      outputRange: [0, 0.9, 0],
+    });
 
     return (
       <Animated.View
