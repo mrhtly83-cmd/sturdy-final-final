@@ -15,6 +15,10 @@ export default function App() {
         </div>
         <FeaturesSection />
         <SpecialSection />
+        <div className="relative mx-auto w-full max-w-6xl py-8">
+          <span className="pointer-events-none absolute inset-0 blur-2xl opacity-40" />
+          <div className="mx-auto h-[1.5px] w-40 rounded-full bg-gradient-to-r from-transparent via-white/60 to-transparent" />
+        </div>
         <StepsPreview />
       </main>
     </div>
