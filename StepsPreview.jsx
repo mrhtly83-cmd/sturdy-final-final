@@ -40,11 +40,13 @@ export default function StepsPreview() {
           {steps.map((step, index) => (
             <motion.div
               key={step.title}
-              className="flex flex-col gap-3 rounded-[26px] border border-white/10 bg-white/5 p-6 shadow-[0_25px_70px_rgba(0,0,0,0.45)] backdrop-blur-3xl"
+              className="flex flex-col gap-3 rounded-[26px] border border-white/10 bg-white/5 p-6 shadow-[0_25px_70px_rgba(0,0,0,0.45)] backdrop-blur-3xl transition hover:-translate-y-1 hover:shadow-[0_35px_90px_rgba(79,211,184,0.45)] hover:brightness-110"
               initial="hidden"
-              animate="visible"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.4 }}
               variants={cardVariants}
-              transition={{ delay: index * 0.15, duration: 0.5, ease: "easeOut" }}
+              transition={{ delay: index * 0.15, duration: 0.6, ease: "easeOut" }}
+              whileHover={{ scale: 1.02 }}
             >
               <span className="font-heading text-3xl font-bold text-emerald-200">{step.number}</span>
               <h3 className="font-heading text-2xl font-semibold text-white">{step.title}</h3>
