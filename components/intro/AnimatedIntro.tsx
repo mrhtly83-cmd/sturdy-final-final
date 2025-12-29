@@ -125,12 +125,10 @@ export default function AnimatedIntro() {
         setWindowWidth(Dimensions.get("window").width);
       };
       
-      // @ts-ignore - window is available on web
-      window.addEventListener("resize", handleResize);
+      (window as any).addEventListener("resize", handleResize);
       
       return () => {
-        // @ts-ignore
-        window.removeEventListener("resize", handleResize);
+        (window as any).removeEventListener("resize", handleResize);
       };
     }
   }, []);
