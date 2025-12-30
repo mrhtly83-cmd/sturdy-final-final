@@ -1,192 +1,50 @@
-# Sturdy Final - AI-Powered Parenting Script Generator
+# Welcome to your Expo app 👋
 
-A React Native/Expo application that helps parents generate AI-powered parenting scripts for challenging situations with their children.
+This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
-## Features
+## Get started
 
-- 🤖 **AI-Generated Scripts**: Get personalized parenting advice using GPT-4
-- 🔐 **User Authentication**: Secure sign-in with Supabase
-- 📱 **Cross-Platform**: Works on iOS, Android, and Web
-- 💾 **Script History**: Save and manage your generated scripts
-- ⭐ **Favorites**: Mark important scripts for quick access
-- 🎯 **Customizable**: Adjust tone and context for each situation
+1. Install dependencies
 
-## Tech Stack
-
-- **Frontend**: React Native with Expo
-- **Routing**: Expo Router
-- **Backend**: Supabase (Authentication, Database, Edge Functions)
-- **AI**: OpenAI GPT-4 (via Supabase Edge Functions)
-- **Styling**: React Native StyleSheet with custom components
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js 18+ and npm
-- Expo CLI
-- A Supabase account and project
-- An OpenAI API key (for Edge Functions)
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/mrhtly83-cmd/sturdy-final-final.git
-   cd sturdy-final-final
-   ```
-
-2. **Install dependencies**
    ```bash
    npm install
    ```
 
-3. **Set up environment variables**
+2. Start the app
+
    ```bash
-   cp .env.example .env
-   ```
-   
-   Edit `.env` and add your credentials:
-   ```
-   EXPO_PUBLIC_SUPABASE_URL=your_supabase_url
-   EXPO_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   npx expo start
    ```
 
-4. **Set up Supabase**
-   
-   Follow the instructions in:
-   - `SUPABASE_SETUP.md` - Database schema and setup
-   - `SUPABASE_EDGE_FUNCTION_SETUP.md` - Edge Functions deployment
+In the output, you'll find options to open the app in a
 
-5. **Run the app**
-   ```bash
-   # For web
-   npm run web
+- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
+- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
+- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
+- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
 
-   # For iOS
-   npm run ios
+You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
-   # For Android
-   npm run android
-   ```
+## Get a fresh project
 
-## Deployment
-
-### Web Deployment to Vercel
-
-See `VERCEL_DEPLOYMENT.md` for detailed instructions on deploying to Vercel.
-
-Quick start:
-```bash
-# Build for web
-npm run build
-
-# Output will be in web-build/ directory
-```
-
-### Mobile Deployment
-
-Follow [Expo's deployment guide](https://docs.expo.dev/distribution/introduction/) for iOS App Store and Google Play Store.
-
-## Project Structure
-
-```
-sturdy-final-final/
-├── app/                    # Expo Router pages
-│   ├── (auth)/            # Authentication screens
-│   ├── (tabs)/            # Tab navigation screens
-│   └── quiz/              # Quiz flow screens
-├── src/
-│   ├── components/        # Reusable components
-│   ├── contexts/          # React contexts (Auth, FormData)
-│   ├── lib/               # Utilities and configurations
-│   └── services/          # API services (AI, Database)
-├── supabase/
-│   └── functions/         # Edge Functions
-├── assets/                # Images and static files
-├── .env.example           # Environment variables template
-├── vercel.json            # Vercel deployment config
-└── package.json           # Dependencies and scripts
-```
-
-## Key Files
-
-- **`vercel.json`**: Vercel deployment configuration
-- **`app.json`**: Expo app configuration
-- **`src/lib/supabase.ts`**: Supabase client initialization
-- **`src/services/aiService.ts`**: AI script generation service
-- **`src/services/databaseService.ts`**: Database operations
-
-## Available Scripts
-
-- `npm start` - Start Expo development server
-- `npm run dev` - Alias for start
-- `npm run build` - Build for web (outputs to web-build/)
-- `npm run web` - Start web development server
-- `npm run ios` - Start iOS development
-- `npm run android` - Start Android development
-- `npm run lint` - Run ESLint
-
-## Environment Variables
-
-Required environment variables:
+When you're ready, run:
 
 ```bash
-# Supabase
-EXPO_PUBLIC_SUPABASE_URL=       # Your Supabase project URL
-EXPO_PUBLIC_SUPABASE_ANON_KEY=  # Your Supabase anonymous key
-
-# OpenAI (server-side only - set in Supabase Edge Function secrets, NOT here)
-OPENAI_API_KEY=                 # Your OpenAI API key (Edge Functions only)
+npm run reset-project
 ```
 
-**⚠️ Security Note**: 
-- Never commit `.env` files with real credentials
-- The OpenAI API key should ONLY be set in Supabase Edge Function secrets, not in client-side environment variables
-- Never use `EXPO_PUBLIC_` prefix for the OpenAI key as it would expose it to the client
+This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
 
-## Documentation
+## Learn more
 
-- **[Vercel Deployment](VERCEL_DEPLOYMENT.md)** - Deploy to Vercel
-- **[Supabase Setup](SUPABASE_SETUP.md)** - Database and authentication setup
-- **[Edge Functions](SUPABASE_EDGE_FUNCTION_SETUP.md)** - Server-side AI integration
-- **[OpenAI Setup](OPENAI_KEY_SETUP.md)** - API key configuration
+To learn more about developing your project with Expo, look at the following resources:
 
-## Troubleshooting
+- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
+- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
 
-### Build fails with "supabaseUrl is required"
+## Join the community
 
-**Solution**: Ensure your `.env` file exists and contains valid Supabase credentials.
+Join our community of developers creating universal apps.
 
-### "expo module not found" during build
-
-**Solution**: Run `npm install` to install all dependencies.
-
-### Edge Functions not working
-
-**Solution**: Make sure you've deployed your Edge Functions to Supabase and set the `OPENAI_API_KEY` secret.
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Support
-
-For issues and questions:
-- Open an issue on GitHub
-- Check existing documentation in the `/docs` folder
-- Review Expo and Supabase documentation
-
-## Acknowledgments
-
-- Built with [Expo](https://expo.dev/)
-- Backend powered by [Supabase](https://supabase.com/)
-- AI by [OpenAI](https://openai.com/)
+- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
+- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
