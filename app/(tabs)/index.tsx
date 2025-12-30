@@ -1,28 +1,55 @@
-import { LinearGradient } from "expo-linear-gradient";
-import { useNavigation } from "expo-router";
-import { useState } from "react";
-import { FlatList, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { View, Text, StyleSheet, Pressable, ScrollView, FlatList, ActivityIndicator } from "react-native";
+import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
 import { theme } from "../../src/styles/theme";
+import { LinearGradient } from "expo-linear-gradient";
+import { getUserScripts, getUserProfile } from "../../src/services/databaseService";
+import { useAuth } from "../../src/contexts/AuthContext";
+import { checkFreeLimitOrPaywall } from "../../src/lib/freeUsage";
 
-// Simulated scripts (replace with fetch logic)
-const MOCK_SCRIPTS = [
-  { id: "1", title: "Tantrum Support", snippet: "“I see you’re angry. That’s okay!”" },
-  { id: "2", title: "Bedtime Calm", snippet: "“Let’s take a deep breath together.”" },
-  { id: "3", title: "Screen Time Limits", snippet: "“We agreed, when the timer rings, screens go off.”" },
-];
+const FREE_LIMIT = 5;
 
 export default function HomeScreen() {
-  const navigation = useNavigation();
-  const [scripts, setScripts] = useState(MOCK_SCRIPTS);
+  const router = useRouter();
+  const { user } = useAuth();
 
-  // Example: could fetch scripts here
-  // useEffect(() => {
-  //   ...fetch recent scripts (setScripts)
-  // }, []);
+  const [scripts, setScripts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState<any>(null);
+  const [showUpsell, setShowUpsell] = useState(false);
 
-  const handleCreateScript = () => navigation.navigate("create" as never);
-  const handleViewScripts = () => {}; // Implement navigation to scripts history
-  const handleScriptPress = (item: any) => {}; // Implement open script details
+  // Fetch scripts + profile on mount
+  useEffect(() => {
+    async function loadUserData() {
+      if (!user) return;
+      setLoading(true);
+      const [scriptsResult, profileResult] = await Promise.all([
+        getUserScripts(user.id),
+        getUserProfile(user.id),
+      ]);
+      setScripts(scriptsResult || []);
+      setProfile(profileResult);
+
+      // Check if limit reached to decide on upsell
+      const limitCheck = await checkFreeLimitOrPaywall();
+      setShowUpsell(!limitCheck.allowed);
+      setLoading(false);
+    }
+    loadUserData();
+  }, [user]);
+
+  // Button handlers
+  const handleCreateScript = () => router.push("/(tabs)/create");
+  const handleViewScripts = () => router.push("/(tabs)/scripts");
+  const handleScriptPress = (item: any) => {
+    // You can route to a script detail screen: /script/[id]
+    router.push({ pathname: "/(tabs)/scripts", params: { open: item.id } });
+  };
+  const handleUpgrade = () => router.push("/paywall");
+
+  // Compute progress
+  const used = profile?.scripts_used_this_week ?? 0;
+  const progress = Math.min(used / FREE_LIMIT, 1);
 
   return (
     <ScrollView style={styles.container}>
@@ -32,7 +59,9 @@ export default function HomeScreen() {
         end={{ x: 0, y: 1 }}
         style={styles.hero}
       >
-        <Text style={styles.greeting}>Hi, Sturdy Parent 👋</Text>
+        <Text style={styles.greeting}>
+          {profile?.email ? `Hi, ${profile.email.split("@")[0]} 👋` : "Hi, Sturdy Parent 👋"}
+        </Text>
         <Text style={styles.heroTitle}>Let’s make today count.</Text>
         <Text style={styles.heroSub}>Gentle words. Stronger moments.</Text>
         <Pressable style={styles.primaryButton} onPress={handleCreateScript}>
@@ -40,13 +69,12 @@ export default function HomeScreen() {
         </Pressable>
       </LinearGradient>
 
-      {/* Progress Card */}
       <View style={styles.card}>
         <Text style={styles.cardLabel}>This Week’s Progress</Text>
         <View style={styles.progressBarBackground}>
-          <View style={[styles.progressBarFill, { width: "25%" }]} />
+          <View style={[styles.progressBarFill, { width: `${progress * 100}%` }]} />
         </View>
-        <Text style={styles.cardValue}>1 of 5 free scripts used</Text>
+        <Text style={styles.cardValue}>{used} of {FREE_LIMIT} free scripts used</Text>
       </View>
 
       {/* Quick Actions */}
@@ -59,28 +87,41 @@ export default function HomeScreen() {
         </Pressable>
       </View>
 
-      {/* Latest Scripts */}
       <Text style={styles.sectionTitle}>Your Latest Scripts</Text>
-      <FlatList
-        data={scripts}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={{ paddingLeft: 10, paddingBottom: 8 }}
-        renderItem={({ item }) => (
-          <Pressable style={styles.scriptCard} onPress={() => handleScriptPress(item)}>
-            <Text style={styles.scriptTitle}>{item.title}</Text>
-            <Text style={styles.scriptSnippet} numberOfLines={2}>{item.snippet}</Text>
-          </Pressable>
-        )}
-      />
+      {loading ? (
+        <ActivityIndicator style={{ marginTop: 24 }} />
+      ) : (
+        <FlatList
+          data={scripts.slice(0, 8)}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={{ paddingLeft: 10, paddingBottom: 8 }}
+          renderItem={({ item }) => (
+            <Pressable style={styles.scriptCard} onPress={() => handleScriptPress(item)}>
+              <Text style={styles.scriptTitle}>{item.struggle}</Text>
+              <Text style={styles.scriptSnippet} numberOfLines={2}>{item.content}</Text>
+            </Pressable>
+          )}
+          ListEmptyComponent={
+            <View style={{ padding: 24 }}>
+              <Text style={{ color: theme.colors.muted }}>No scripts yet!</Text>
+            </View>
+          }
+        />
+      )}
 
-      {/* Upsell Card */}
-      <View style={styles.upsellCard}>
-        <Text style={styles.upsellText}>
-          🎉 Did you know? Premium users unlock audio playback and unlimited script saves!
-        </Text>
-      </View>
+      {/* Upsell card if limit reached */}
+      {showUpsell && (
+        <View style={styles.upsellCard}>
+          <Text style={styles.upsellText}>
+            🚀 You’ve hit your free script limit! Unlock unlimited scripts, saving, and playback with Sturdy Complete.
+          </Text>
+          <Pressable style={styles.upsellButton} onPress={handleUpgrade}>
+            <Text style={styles.upsellButtonText}>Upgrade Now</Text>
+          </Pressable>
+        </View>
+      )}
     </ScrollView>
   );
 }
@@ -224,5 +265,18 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 14,
     fontWeight: "600",
+    marginBottom: 14,
+  },
+  upsellButton: {
+    marginTop: 8,
+    backgroundColor: theme.colors.accent,
+    paddingVertical: 12,
+    paddingHorizontal: 30,
+    borderRadius: 22,
+  },
+  upsellButtonText: {
+    color: "#fff",
+    fontSize: 15,
+    fontWeight: "800",
   },
 });
