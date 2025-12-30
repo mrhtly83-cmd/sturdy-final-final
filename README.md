@@ -10,7 +10,17 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    npm install
    ```
 
-2. Start the app
+2. Set up environment variables
+
+   Copy the `.env.example` file to `.env` and fill in your Supabase credentials:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+   Edit `.env` and add your Supabase URL and anon key. You can get these from your [Supabase project settings](https://app.supabase.com).
+
+3. Start the app
 
    ```bash
    npx expo start
@@ -24,6 +34,20 @@ In the output, you'll find options to open the app in a
 - [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
 
 You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+
+## Build for Web
+
+To build the project for web deployment:
+
+```bash
+npm run build
+```
+
+This will create a `web-build` directory with static files ready for deployment.
+
+## Deployment
+
+This project is configured for deployment on Vercel. The `vercel.json` file specifies the build command and output directory.
 
 ## Get a fresh project
 
