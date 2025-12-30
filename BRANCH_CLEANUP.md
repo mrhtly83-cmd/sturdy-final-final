@@ -3,6 +3,12 @@
 ## Objective
 Keep only the `main` branch and remove all other branches from the repository.
 
+## Quick Start
+Run the automated cleanup script after merging this PR:
+```bash
+./cleanup-branches.sh
+```
+
 ## Current Branch Status
 As of the last check, the following branches exist:
 - `main` (to be kept)
@@ -11,7 +17,23 @@ As of the last check, the following branches exist:
 
 ## Cleanup Steps
 
-### After Merging This PR to Main
+### Option 1: Automated Cleanup (Recommended)
+
+Use the provided cleanup script:
+
+```bash
+./cleanup-branches.sh
+```
+
+This script will:
+- List all remote branches except `main`
+- Ask for confirmation before deletion
+- Delete all non-main branches
+- Show the final branch status
+
+### Option 2: Manual Cleanup
+
+After merging this PR to Main:
 
 1. **Delete the `copilot/fix-vercel-deployment-issues` branch:**
    ```bash
