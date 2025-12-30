@@ -3,7 +3,6 @@
  * POST /api/admin/reset-usage
  */
 
-import { NextResponse } from "next/server";
 import { supabaseServer } from "../../../_utils/supabaseServer";
 
 export async function POST(request: Request) {
@@ -11,7 +10,7 @@ export async function POST(request: Request) {
     const { userId } = await request.json();
 
     if (!userId) {
-      return NextResponse.json({ error: "User ID is required" }, { status: 400 });
+      return Response.json({ error: "User ID is required" }, { status: 400 });
     }
 
     // Reset user usage
@@ -21,11 +20,11 @@ export async function POST(request: Request) {
       .eq("id", userId);
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return Response.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true, message: "Usage reset successfully" });
+    return Response.json({ success: true, message: "Usage reset successfully" });
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return Response.json({ error: error.message }, { status: 500 });
   }
 }

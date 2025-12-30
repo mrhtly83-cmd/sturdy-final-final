@@ -3,14 +3,12 @@
  * POST /api/generate-script
  */
 
-import { NextResponse } from "next/server";
-
 export async function POST(request: Request) {
   try {
     const { struggle, childAge, situation } = await request.json();
 
     if (!struggle) {
-      return NextResponse.json(
+      return Response.json(
         { error: "Struggle description is required" },
         { status: 400 }
       );
@@ -40,12 +38,12 @@ Take a deep breath. Remember, this moment is temporary.
 Offer choices and work together to find a solution.
     `.trim();
 
-    return NextResponse.json({
+    return Response.json({
       success: true,
       script,
       generated_at: new Date().toISOString(),
     });
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return Response.json({ error: error.message }, { status: 500 });
   }
 }

@@ -3,7 +3,6 @@
  * GET /api/entitlements
  */
 
-import { NextResponse } from "next/server";
 import { supabaseServer } from "../../_utils/supabaseServer";
 
 export async function GET(request: Request) {
@@ -12,7 +11,7 @@ export async function GET(request: Request) {
     const userId = searchParams.get("userId");
 
     if (!userId) {
-      return NextResponse.json({ error: "User ID is required" }, { status: 400 });
+      return Response.json({ error: "User ID is required" }, { status: 400 });
     }
 
     // Get user entitlements
@@ -23,16 +22,16 @@ export async function GET(request: Request) {
       .single();
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return Response.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({
+    return Response.json({
       entitlements: {
         isPro: profile?.subscription_status === "active",
         plan: profile?.subscription_plan || "free",
       },
     });
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return Response.json({ error: error.message }, { status: 500 });
   }
 }
