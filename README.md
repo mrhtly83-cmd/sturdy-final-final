@@ -20,6 +20,8 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 
    Edit `.env` and add your Supabase URL and anon key. You can get these from your [Supabase project settings](https://app.supabase.com).
 
+   ⚠️ **Important**: Never commit your `.env` file to git. It's already included in `.gitignore` to prevent accidental commits.
+
 3. Start the app
 
    ```bash
@@ -72,3 +74,15 @@ Join our community of developers creating universal apps.
 
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+
+## Security
+
+### Environment Variables
+
+- **Never commit `.env` files** - They contain sensitive credentials and are excluded via `.gitignore`
+- Use `.env.example` with placeholder values as a template
+- In production, set environment variables through your hosting platform (Vercel, Railway, etc.)
+
+### Push Protection Issues
+
+If you encounter GitHub push protection errors, see [PUSH_PROTECTION_RESOLUTION.md](./PUSH_PROTECTION_RESOLUTION.md) for detailed instructions on how to resolve them.
