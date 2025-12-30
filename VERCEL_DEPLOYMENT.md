@@ -37,12 +37,7 @@ EXPO_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT.supabase.co
 EXPO_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
 ```
 
-#### Optional (if using client-side OpenAI - not recommended):
-```
-EXPO_PUBLIC_OPENAI_API_KEY=your_openai_api_key_here
-```
-
-**Note**: OpenAI API calls should be made from Supabase Edge Functions (server-side), not from the client. See `SUPABASE_EDGE_FUNCTION_SETUP.md` for details.
+**Important**: The OpenAI API key should **NOT** be set in Vercel or client-side code. It must only be set as a secret in your Supabase Edge Functions. See `SUPABASE_EDGE_FUNCTION_SETUP.md` for details on setting up Edge Functions with the OpenAI API key.
 
 ### 4. Deploy
 

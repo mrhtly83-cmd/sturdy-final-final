@@ -136,11 +136,14 @@ Required environment variables:
 EXPO_PUBLIC_SUPABASE_URL=       # Your Supabase project URL
 EXPO_PUBLIC_SUPABASE_ANON_KEY=  # Your Supabase anonymous key
 
-# OpenAI (set in Supabase Edge Function secrets)
-OPENAI_API_KEY=                 # Your OpenAI API key
+# OpenAI (server-side only - set in Supabase Edge Function secrets, NOT here)
+OPENAI_API_KEY=                 # Your OpenAI API key (Edge Functions only)
 ```
 
-**⚠️ Security Note**: Never commit `.env` files with real credentials. The `.env.example` file contains placeholders only.
+**⚠️ Security Note**: 
+- Never commit `.env` files with real credentials
+- The OpenAI API key should ONLY be set in Supabase Edge Function secrets, not in client-side environment variables
+- Never use `EXPO_PUBLIC_` prefix for the OpenAI key as it would expose it to the client
 
 ## Documentation
 
