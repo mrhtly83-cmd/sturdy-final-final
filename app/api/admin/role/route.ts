@@ -3,7 +3,6 @@
  * POST /api/admin/role
  */
 
-import { NextResponse } from "next/server";
 import { supabaseServer } from "../../../_utils/supabaseServer";
 
 export async function POST(request: Request) {
@@ -11,7 +10,7 @@ export async function POST(request: Request) {
     const { userId, role } = await request.json();
 
     if (!userId || !role) {
-      return NextResponse.json(
+      return Response.json(
         { error: "User ID and role are required" },
         { status: 400 }
       );
@@ -24,11 +23,11 @@ export async function POST(request: Request) {
       .eq("id", userId);
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return Response.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true, message: "Role updated successfully" });
+    return Response.json({ success: true, message: "Role updated successfully" });
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return Response.json({ error: error.message }, { status: 500 });
   }
 }

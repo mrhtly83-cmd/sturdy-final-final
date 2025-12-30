@@ -3,7 +3,6 @@
  * POST /api/stripe/webhook
  */
 
-import { NextResponse } from "next/server";
 import { supabaseServer } from "../../../_utils/supabaseServer";
 
 export async function POST(request: Request) {
@@ -12,7 +11,7 @@ export async function POST(request: Request) {
     const signature = request.headers.get("stripe-signature");
 
     if (!signature) {
-      return NextResponse.json(
+      return Response.json(
         { error: "No signature provided" },
         { status: 400 }
       );
@@ -42,9 +41,9 @@ export async function POST(request: Request) {
         console.log(`Unhandled event type: ${event.type}`);
     }
 
-    return NextResponse.json({ received: true });
+    return Response.json({ received: true });
   } catch (error: any) {
     console.error("Webhook error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return Response.json({ error: error.message }, { status: 500 });
   }
 }
