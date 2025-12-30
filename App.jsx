@@ -11,19 +11,24 @@ export default function App() {
         autoPlay
         muted
         loop
-        className="absolute inset-0 w-full h-full object-cover z-0"
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover"
+        style={{ zIndex: 0 }}
       >
-        <source src="/Sturdy Parents Sturdy children.MP4" type="video/mp4" />
+        <source src="/Sturdy%20Parents%20Sturdy%20children.MP4" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
 
       {/* Dark overlay for readability */}
-      <div className="absolute inset-0 bg-black/50 z-1" />
+      <div className="absolute inset-0 bg-black/50" style={{ zIndex: 1 }} />
 
       {/* Gradient overlay */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-64 bg-gradient-to-b from-white/40 via-white/0 to-transparent z-2" />
+      <div 
+        className="pointer-events-none absolute inset-x-0 top-0 h-64 bg-gradient-to-b from-white/40 via-white/0 to-transparent"
+        style={{ zIndex: 2 }}
+      />
 
-      <main className="relative z-10 mx-auto flex w-full max-w-6xl flex-col gap-14 md:gap-16">
+      <main className="relative mx-auto flex w-full max-w-6xl flex-col gap-14 md:gap-16" style={{ zIndex: 10 }}>
         <HeroSection />
         <div className="mx-auto w-full max-w-6xl">
           <div className="mx-auto h-0.5 w-16 rounded-full bg-gradient-to-r from-emerald-400 via-sky-400 to-indigo-500/80" />
