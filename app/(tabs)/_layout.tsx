@@ -21,6 +21,7 @@ export default function TabsLayout() {
       <Tabs.Screen name="explore" options={{ title: "Explore" }} />
       <Tabs.Screen name="alerts" options={{ title: "Alerts" }} />
       <Tabs.Screen name="profile" options={{ title: "Profile" }} />
+      <Tabs.Screen name="scripts" options={{ title: "My Scripts" }} /> {/* <--- Add this line! */}
     </Tabs>
   );
 }
