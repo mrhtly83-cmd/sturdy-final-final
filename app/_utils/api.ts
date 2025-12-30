@@ -2,9 +2,13 @@
  * API utility functions for making requests to backend services
  */
 
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || "https://api.example.com";
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_URL;
 
 export async function apiRequest(endpoint: string, options?: RequestInit) {
+  if (!API_BASE_URL) {
+    throw new Error("API_BASE_URL is not configured. Please set EXPO_PUBLIC_API_URL or NEXT_PUBLIC_API_URL environment variable.");
+  }
+  
   const url = `${API_BASE_URL}${endpoint}`;
   
   try {
