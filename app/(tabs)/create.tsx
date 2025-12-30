@@ -9,9 +9,11 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { useFormData } from '../../src/contexts/FormDataContext';
 
 export default function CreateStep1() {
   const router = useRouter();
+  const { updateFormData } = useFormData();
 
   const [gender, setGender] = useState<string | null>(null);
   const [age, setAge] = useState<string | null>(null);
@@ -20,6 +22,25 @@ export default function CreateStep1() {
   const ageOptions = ['Toddler (1-3)', 'School Age (5-10)', 'Tween (11-13)', 'Teen (14-18)'];
 
   const isValid = gender && age;
+
+  const handleContinue = () => {
+    if (!age) return;
+
+    // Extract numeric age from selection
+    const ageMap: { [key: string]: number } = {
+      'Toddler (1-3)': 2,
+      'School Age (5-10)': 7,
+      'Tween (11-13)': 12,
+      'Teen (14-18)': 16,
+    };
+
+    updateFormData({
+      childAge: ageMap[age],
+      childGender: gender || undefined,
+    });
+
+    router.push('/(tabs)/struggle');
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -68,9 +89,7 @@ export default function CreateStep1() {
           !isValid && styles.buttonDisabled,
         ]}
         disabled={!isValid}
-        onPress={() => {
-          router.push('/(tabs)/struggle');
-        }}
+        onPress={handleContinue}
       >
         <Text style={styles.continueText}>Continue</Text>
       </TouchableOpacity>

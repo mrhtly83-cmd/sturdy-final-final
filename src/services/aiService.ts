@@ -2,18 +2,36 @@
 import OpenAI from "openai";
 import { ScriptRequest } from "../types";
 
+// SECURITY NOTE: In production, this API key should NOT be exposed to the client.
+// The OpenAI API should be called from a secure backend service instead.
+// Using EXPO_PUBLIC_ prefix makes this key visible in the client bundle.
 const openai = new OpenAI({
   apiKey: process.env.EXPO_PUBLIC_OPENAI_API_KEY,
 });
+
+// Sanitize user input to prevent prompt injection
+function sanitizeInput(input: string): string {
+  return input
+    .replace(/[<>]/g, "") // Remove HTML-like tags
+    .replace(/\n{3,}/g, "\n\n") // Limit excessive newlines
+    .trim()
+    .slice(0, 500); // Limit length
+}
 
 export async function generateScript(request: ScriptRequest): Promise<string> {
   try {
     const { childAge, childName, neurotype, struggle, tone, context } = request;
 
+    // Sanitize all user inputs
+    const sanitizedStruggle = sanitizeInput(struggle);
+    const sanitizedName = childName ? sanitizeInput(childName) : "";
+    const sanitizedNeurotype = neurotype ? sanitizeInput(neurotype) : "";
+    const sanitizedContext = context ? sanitizeInput(context) : "";
+
     // Build the prompt based on the request
-    const nameText = childName ? ` named ${childName}` : "";
-    const neurotypeText = neurotype ? ` with ${neurotype}` : "";
-    const contextText = context ? `\n\nAdditional context: ${context}` : "";
+    const nameText = sanitizedName ? ` named ${sanitizedName}` : "";
+    const neurotypeText = sanitizedNeurotype ? ` with ${sanitizedNeurotype}` : "";
+    const contextText = sanitizedContext ? `\n\nAdditional context: ${sanitizedContext}` : "";
 
     const toneDescriptions = {
       gentle: "very warm, empathetic, and comforting",
@@ -23,7 +41,7 @@ export async function generateScript(request: ScriptRequest): Promise<string> {
 
     const prompt = `You are a parenting coach helping a parent talk to their ${childAge}-year-old child${nameText}${neurotypeText}.
 
-The child is struggling with: ${struggle}${contextText}
+The child is struggling with: ${sanitizedStruggle}${contextText}
 
 Generate a calming parenting script with a ${toneDescriptions[tone]} tone. The script should:
 

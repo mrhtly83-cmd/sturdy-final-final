@@ -12,12 +12,14 @@ import {
   TextInput,
 } from 'react-native';
 import { useAuth } from '../../src/contexts/AuthContext';
+import { useFormData } from '../../src/contexts/FormDataContext';
 import { generateScript } from '../../src/services/aiService';
-import { saveScript } from '../../src/services/databaseService';
+import { incrementScriptUsage, saveScript } from '../../src/services/databaseService';
 
 export default function Step3ToneScreen() {
   const router = useRouter();
   const { user } = useAuth();
+  const { formData, resetFormData } = useFormData();
   const [tone, setTone] = useState<string | null>(null);
   const [customTone, setCustomTone] = useState<string>('');
   const [loading, setLoading] = useState(false);
@@ -32,6 +34,13 @@ export default function Step3ToneScreen() {
     if (!user) {
       Alert.alert('Error', 'You must be signed in to generate scripts.');
       router.replace('/(auth)/sign-in');
+      return;
+    }
+
+    // Validate required form data
+    if (!formData.childAge || !formData.struggle) {
+      Alert.alert('Error', 'Please complete all previous steps.');
+      router.push('/(tabs)/create');
       return;
     }
 
@@ -50,11 +59,10 @@ export default function Step3ToneScreen() {
 
       const apiTone = toneMap[tone || 'Neutral'];
 
-      // For now, use placeholder data. In a full implementation,
-      // these would be passed through navigation params or global state
+      // Generate script with actual form data
       const script = await generateScript({
-        childAge: 7, // Placeholder - would come from Step 1
-        struggle: 'Big Emotions', // Placeholder - would come from Step 2
+        childAge: formData.childAge,
+        struggle: formData.struggle,
         tone: apiTone,
         context: isCustom ? customTone : undefined,
       });
@@ -63,7 +71,7 @@ export default function Step3ToneScreen() {
 
       // Save script to database
       const savedScript = await saveScript(user.id, {
-        struggle: 'Big Emotions', // Placeholder
+        struggle: formData.struggle,
         tone: apiTone,
         content: script,
       });
@@ -71,6 +79,9 @@ export default function Step3ToneScreen() {
       if (!savedScript) {
         console.warn('Failed to save script to database');
       }
+
+      // Increment script usage tracking
+      await incrementScriptUsage(user.id);
     } catch (error) {
       console.error('Error generating script:', error);
       Alert.alert(
@@ -80,6 +91,18 @@ export default function Step3ToneScreen() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDone = () => {
+    resetFormData();
+    setGeneratedScript(null);
+    router.push('/(tabs)');
+  };
+
+  const handleGenerateAnother = () => {
+    setGeneratedScript(null);
+    setTone(null);
+    setCustomTone('');
   };
 
   if (generatedScript) {
@@ -94,17 +117,14 @@ export default function Step3ToneScreen() {
 
         <TouchableOpacity
           style={styles.continueButton}
-          onPress={() => {
-            setGeneratedScript(null);
-            router.push('/(tabs)');
-          }}
+          onPress={handleDone}
         >
           <Text style={styles.continueText}>Done</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.secondaryButton}
-          onPress={() => setGeneratedScript(null)}
+          onPress={handleGenerateAnother}
         >
           <Text style={styles.secondaryText}>Generate Another</Text>
         </TouchableOpacity>

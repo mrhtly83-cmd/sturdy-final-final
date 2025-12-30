@@ -8,9 +8,11 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { useFormData } from '../../src/contexts/FormDataContext';
 
 export default function StruggleScreen() {
   const router = useRouter();
+  const { updateFormData } = useFormData();
 
   const [selected, setSelected] = useState<string | null>(null);
 
@@ -24,6 +26,16 @@ export default function StruggleScreen() {
   ];
 
   const isValid = selected !== null;
+
+  const handleContinue = () => {
+    if (!selected) return;
+
+    updateFormData({
+      struggle: selected,
+    });
+
+    router.push({ pathname: '/(tabs)/create2' });
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -51,9 +63,7 @@ export default function StruggleScreen() {
           !isValid && styles.buttonDisabled,
         ]}
         disabled={!isValid}
-        onPress={() => {
-          router.push({ pathname: '/(tabs)/create' });
-        }}
+        onPress={handleContinue}
       >
         <Text style={styles.continueText}>Continue</Text>
       </TouchableOpacity>
