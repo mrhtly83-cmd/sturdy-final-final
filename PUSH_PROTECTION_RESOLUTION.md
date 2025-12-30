@@ -18,10 +18,12 @@ The following commits contain detected secrets:
 
 If the detected API key has already been rotated/revoked or is a false positive:
 
-1. Visit the URL provided in the error message:
+1. Visit the URL provided in your push error message. It will look like:
    ```
-   https://github.com/mrhtly83-cmd/sturdy-final-final/security/secret-scanning/unblock-secret/37YIR3NLDs73MfBrRKekw1VRXUa
+   https://github.com/YOUR_USERNAME/YOUR_REPO/security/secret-scanning/unblock-secret/TOKEN
    ```
+   
+   The actual URL will be in the error message you received when trying to push.
 
 2. Follow the prompts to mark the secret as safe or confirm it has been revoked
 
@@ -35,15 +37,16 @@ If the detected API key has already been rotated/revoked or is a false positive:
 
 2. Use BFG Repo-Cleaner or git-filter-repo to remove the secrets from history:
 
+   **Using BFG Repo-Cleaner** (download from https://rjbs.github.io/bfg-repo-cleaner/):
    ```bash
-   # Using BFG Repo-Cleaner
+   # Download BFG first, then run:
    java -jar bfg.jar --delete-files .env
    git reflog expire --expire=now --all
    git gc --prune=now --aggressive
    git push --force
    ```
 
-   Or using git-filter-repo:
+   **Using git-filter-repo** (install with `pip install git-filter-repo`):
    ```bash
    git filter-repo --path .env --invert-paths
    git push --force
@@ -96,7 +99,7 @@ The repository is already configured to prevent this issue:
 ✅ No `.env` files exist in the working directory
 ✅ Documentation files only contain example placeholder keys
 
-The current branch (`copilot/resolve-push-protection-issues`) is clean and can be pushed without issues.
+Any clean branch (without the problematic commits in its history) can be pushed without issues.
 
 ## Recommended Action
 
