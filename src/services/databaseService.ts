@@ -1,6 +1,6 @@
 // src/services/databaseService.ts
 import { supabase } from "../lib/supabase";
-import { Child, Profile, Script } from "../types";
+import { Profile, Script } from "../types";
 
 /**
  * Create a user profile on signup

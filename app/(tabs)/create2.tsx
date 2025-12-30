@@ -86,7 +86,7 @@ export default function Step3ToneScreen() {
     return (
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.step}>Your Script</Text>
-        <Text style={styles.title}>Here's your personalized script</Text>
+        <Text style={styles.title}>Here&apos;s your personalized script</Text>
 
         <View style={styles.scriptContainer}>
           <Text style={styles.scriptText}>{generatedScript}</Text>
