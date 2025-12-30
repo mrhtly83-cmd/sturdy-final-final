@@ -3,10 +3,11 @@ import { Video, ResizeMode } from "expo-av";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Animated,
   Dimensions,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -14,7 +15,11 @@ import {
   View,
 } from "react-native";
 
-const { width } = Dimensions.get("window");
+const { width: initialWidth } = Dimensions.get("window");
+
+// For web SSR/static rendering, Dimensions returns 0, so default to desktop width
+const DEFAULT_WIDTH = Platform.OS === "web" ? 1024 : initialWidth;
+const effectiveInitialWidth = initialWidth === 0 ? DEFAULT_WIDTH : initialWidth;
 
 const featureItems = [
   {
@@ -53,6 +58,7 @@ const quickSteps = [
 ];
 
 export default function AnimatedIntro() {
+  const [windowWidth, setWindowWidth] = useState(effectiveInitialWidth);
   const brandAnim = useRef(new Animated.Value(0)).current;
   const headlineAnim = useRef(new Animated.Value(0)).current;
   const ctaAnim = useRef(new Animated.Value(0)).current;
@@ -113,6 +119,21 @@ export default function AnimatedIntro() {
   }, [brandAnim, ctaAnim, featureAnims, headlineAnim, pulse]);
 
   useEffect(() => {
+    // Handle window resize for web
+    if (Platform.OS === "web") {
+      const handleResize = () => {
+        setWindowWidth(Dimensions.get("window").width);
+      };
+      
+      (window as any).addEventListener("resize", handleResize);
+      
+      return () => {
+        (window as any).removeEventListener("resize", handleResize);
+      };
+    }
+  }, []);
+
+  useEffect(() => {
     const startVideo = async () => {
       try {
         await videoRef.current?.playAsync();
@@ -151,6 +172,52 @@ export default function AnimatedIntro() {
     }
   };
 
+  const isDesktop = windowWidth > 768;
+
+  const getResponsiveStyles = () => ({
+    cards: {
+      ...styles.cards,
+      flexDirection: isDesktop ? ("row" as const) : ("column" as const),
+    },
+    cardWrapper: {
+      ...styles.cardWrapper,
+      flex: isDesktop ? 1 : undefined,
+      width: isDesktop ? undefined : "100%",
+    },
+    card: {
+      ...styles.card,
+      flexDirection: isDesktop ? ("column" as const) : ("row" as const),
+      alignItems: "center" as const,
+      paddingVertical: isDesktop ? 24 : 16,
+      paddingHorizontal: isDesktop ? 20 : 18,
+      minHeight: isDesktop ? 200 : undefined,
+    },
+    cardIconWrap: {
+      ...styles.cardIconWrap,
+      marginRight: isDesktop ? 0 : 14,
+      marginBottom: isDesktop ? 16 : 0,
+    },
+    iconBg: {
+      ...styles.iconBg,
+      width: isDesktop ? 56 : 42,
+      height: isDesktop ? 56 : 42,
+    },
+    cardText: {
+      ...styles.cardText,
+      alignItems: isDesktop ? ("center" as const) : ("flex-start" as const),
+    },
+    cardTitle: {
+      ...styles.cardTitle,
+      textAlign: isDesktop ? ("center" as const) : ("left" as const),
+    },
+    cardBody: {
+      ...styles.cardBody,
+      textAlign: isDesktop ? ("center" as const) : ("left" as const),
+    },
+  });
+
+  const responsiveStyles = getResponsiveStyles();
+
   const fadeUpStyle = (anim: Animated.Value, distance = 16) => ({
     opacity: anim,
     transform: [
@@ -164,7 +231,7 @@ export default function AnimatedIntro() {
   });
 
   const particles = particleAnims.map((anim, i) => {
-    const left = 28 + i * ((width - 64) / 6);
+    const left = 28 + i * ((windowWidth - 64) / 6);
     const translateY = anim.interpolate({
       inputRange: [0, 1],
       outputRange: [0, -18 - (i % 3) * 8],
@@ -242,32 +309,32 @@ export default function AnimatedIntro() {
           </Text>
         </Animated.View>
 
-        <View style={styles.cards}>
+        <View style={responsiveStyles.cards}>
           {featureItems.map((item, index) => {
             const anim = featureAnims[index];
             return (
               <Animated.View
                 key={item.title}
-                style={[styles.cardWrapper, fadeUpStyle(anim, 18)]}
+                style={[responsiveStyles.cardWrapper, fadeUpStyle(anim, 18)]}
               >
-                <BlurView intensity={45} tint="dark" style={styles.card}>
+                <BlurView intensity={45} tint="dark" style={responsiveStyles.card}>
                   <LinearGradient
                     colors={["rgba(255,255,255,0.06)", "rgba(255,255,255,0.02)"]}
                     style={StyleSheet.absoluteFill}
                   />
-                  <View style={styles.cardIconWrap}>
+                  <View style={responsiveStyles.cardIconWrap}>
                     <LinearGradient
                       colors={item.gradient}
                       start={[0, 0]}
                       end={[1, 1]}
-                      style={styles.iconBg}
+                      style={responsiveStyles.iconBg}
                     >
                       <Ionicons name={item.icon as any} size={20} color="#F7FBFF" />
                     </LinearGradient>
                   </View>
-                  <View style={styles.cardText}>
-                    <Text style={styles.cardTitle}>{item.title}</Text>
-                    <Text style={styles.cardBody}>{item.body}</Text>
+                  <View style={responsiveStyles.cardText}>
+                    <Text style={responsiveStyles.cardTitle}>{item.title}</Text>
+                    <Text style={responsiveStyles.cardBody}>{item.body}</Text>
                   </View>
                 </BlurView>
               </Animated.View>
@@ -316,12 +383,15 @@ const styles = StyleSheet.create({
     backgroundColor: "#0B0A0F",
   },
   content: {
-    paddingHorizontal: 22,
+    paddingHorizontal: 24,
     paddingVertical: 72,
     alignItems: "center",
-    gap: 22,
+    gap: 28,
     flexGrow: 1,
     justifyContent: "center",
+    maxWidth: 800,
+    width: "100%",
+    alignSelf: "center",
   },
   brandRow: {
     flexDirection: "row",
@@ -348,7 +418,8 @@ const styles = StyleSheet.create({
   },
   centerBlock: {
     alignItems: "center",
-    gap: 14,
+    gap: 16,
+    maxWidth: 720,
   },
   title: {
     color: "#F9F3E9",
@@ -357,6 +428,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     lineHeight: 42,
     letterSpacing: 0.35,
+    maxWidth: 720,
   },
   subtitle: {
     color: "rgba(249,243,233,0.88)",
@@ -364,11 +436,12 @@ const styles = StyleSheet.create({
     textAlign: "center",
     lineHeight: 24,
     paddingHorizontal: 14,
+    maxWidth: 640,
   },
   cards: {
     width: "100%",
-    gap: 14,
-    marginTop: 10,
+    gap: 20,
+    marginTop: 16,
   },
   stepsContainer: {
     width: "100%",
@@ -376,30 +449,24 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   cardWrapper: {
-    width: "100%",
+    // Responsive props handled inline
   },
   card: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 16,
-    paddingHorizontal: 18,
-    borderRadius: 20,
+    borderRadius: 28,
     overflow: "hidden",
     borderWidth: 1,
-    borderColor: "rgba(255,200,160,0.26)",
-    backgroundColor: "rgba(36, 26, 18, 0.58)",
+    borderColor: "rgba(255,255,255,0.2)",
+    backgroundColor: "rgba(255,255,255,0.1)",
     shadowColor: "#0B0602",
-    shadowOpacity: 0.45,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 8 },
   },
   cardIconWrap: {
-    marginRight: 14,
+    // Responsive props handled inline
   },
   iconBg: {
-    width: 42,
-    height: 42,
-    borderRadius: 13,
+    borderRadius: 16,
     alignItems: "center",
     justifyContent: "center",
     shadowColor: "#000",
@@ -409,7 +476,7 @@ const styles = StyleSheet.create({
   },
   cardText: {
     flex: 1,
-    gap: 4,
+    gap: 8,
   },
   cardTitle: {
     color: "#F8F1E1",
@@ -417,8 +484,9 @@ const styles = StyleSheet.create({
     fontWeight: "800",
   },
   cardBody: {
-    color: "rgba(248,241,225,0.78)",
-    fontSize: 15,
+    color: "rgba(248,241,225,0.8)",
+    fontSize: 14,
+    lineHeight: 20,
   },
   stepCard: {
     borderRadius: 16,
