@@ -1,177 +1,189 @@
-# Supabase CLI
+# Sturdy Final - AI-Powered Parenting Script Generator
 
-[![Coverage Status](https://coveralls.io/repos/github/supabase/cli/badge.svg?branch=main)](https://coveralls.io/github/supabase/cli?branch=main) [![Bitbucket Pipelines](https://img.shields.io/bitbucket/pipelines/supabase-cli/setup-cli/master?style=flat-square&label=Bitbucket%20Canary)](https://bitbucket.org/supabase-cli/setup-cli/pipelines) [![Gitlab Pipeline Status](https://img.shields.io/gitlab/pipeline-status/sweatybridge%2Fsetup-cli?label=Gitlab%20Canary)
-](https://gitlab.com/sweatybridge/setup-cli/-/pipelines)
+A React Native/Expo application that helps parents generate AI-powered parenting scripts for challenging situations with their children.
 
-[Supabase](https://supabase.io) is an open source Firebase alternative. We're building the features of Firebase using enterprise-grade open source tools.
+## Features
 
-This repository contains all the functionality for Supabase CLI.
+- 🤖 **AI-Generated Scripts**: Get personalized parenting advice using GPT-4
+- 🔐 **User Authentication**: Secure sign-in with Supabase
+- 📱 **Cross-Platform**: Works on iOS, Android, and Web
+- 💾 **Script History**: Save and manage your generated scripts
+- ⭐ **Favorites**: Mark important scripts for quick access
+- 🎯 **Customizable**: Adjust tone and context for each situation
 
-- [x] Running Supabase locally
-- [x] Managing database migrations
-- [x] Creating and deploying Supabase Functions
-- [x] Generating types directly from your database schema
-- [x] Making authenticated HTTP requests to [Management API](https://supabase.com/docs/reference/api/introduction)
+## Tech Stack
 
-## Getting started
+- **Frontend**: React Native with Expo
+- **Routing**: Expo Router
+- **Backend**: Supabase (Authentication, Database, Edge Functions)
+- **AI**: OpenAI GPT-4 (via Supabase Edge Functions)
+- **Styling**: React Native StyleSheet with custom components
 
-### Install the CLI
+## Getting Started
 
-Available via [NPM](https://www.npmjs.com) as dev dependency. To install:
+### Prerequisites
+
+- Node.js 18+ and npm
+- Expo CLI
+- A Supabase account and project
+- An OpenAI API key (for Edge Functions)
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/mrhtly83-cmd/sturdy-final-final.git
+   cd sturdy-final-final
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Set up environment variables**
+   ```bash
+   cp .env.example .env
+   ```
+   
+   Edit `.env` and add your credentials:
+   ```
+   EXPO_PUBLIC_SUPABASE_URL=your_supabase_url
+   EXPO_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   ```
+
+4. **Set up Supabase**
+   
+   Follow the instructions in:
+   - `SUPABASE_SETUP.md` - Database schema and setup
+   - `SUPABASE_EDGE_FUNCTION_SETUP.md` - Edge Functions deployment
+
+5. **Run the app**
+   ```bash
+   # For web
+   npm run web
+
+   # For iOS
+   npm run ios
+
+   # For Android
+   npm run android
+   ```
+
+## Deployment
+
+### Web Deployment to Vercel
+
+See `VERCEL_DEPLOYMENT.md` for detailed instructions on deploying to Vercel.
+
+Quick start:
+```bash
+# Build for web
+npm run build
+
+# Output will be in web-build/ directory
+```
+
+### Mobile Deployment
+
+Follow [Expo's deployment guide](https://docs.expo.dev/distribution/introduction/) for iOS App Store and Google Play Store.
+
+## Project Structure
+
+```
+sturdy-final-final/
+├── app/                    # Expo Router pages
+│   ├── (auth)/            # Authentication screens
+│   ├── (tabs)/            # Tab navigation screens
+│   └── quiz/              # Quiz flow screens
+├── src/
+│   ├── components/        # Reusable components
+│   ├── contexts/          # React contexts (Auth, FormData)
+│   ├── lib/               # Utilities and configurations
+│   └── services/          # API services (AI, Database)
+├── supabase/
+│   └── functions/         # Edge Functions
+├── assets/                # Images and static files
+├── .env.example           # Environment variables template
+├── vercel.json            # Vercel deployment config
+└── package.json           # Dependencies and scripts
+```
+
+## Key Files
+
+- **`vercel.json`**: Vercel deployment configuration
+- **`app.json`**: Expo app configuration
+- **`src/lib/supabase.ts`**: Supabase client initialization
+- **`src/services/aiService.ts`**: AI script generation service
+- **`src/services/databaseService.ts`**: Database operations
+
+## Available Scripts
+
+- `npm start` - Start Expo development server
+- `npm run dev` - Alias for start
+- `npm run build` - Build for web (outputs to web-build/)
+- `npm run web` - Start web development server
+- `npm run ios` - Start iOS development
+- `npm run android` - Start Android development
+- `npm run lint` - Run ESLint
+
+## Environment Variables
+
+Required environment variables:
 
 ```bash
-npm i supabase --save-dev
+# Supabase
+EXPO_PUBLIC_SUPABASE_URL=       # Your Supabase project URL
+EXPO_PUBLIC_SUPABASE_ANON_KEY=  # Your Supabase anonymous key
+
+# OpenAI (set in Supabase Edge Function secrets)
+OPENAI_API_KEY=                 # Your OpenAI API key
 ```
 
-When installing with yarn 4, you need to disable experimental fetch with the following nodejs config.
+**⚠️ Security Note**: Never commit `.env` files with real credentials. The `.env.example` file contains placeholders only.
 
-```
-NODE_OPTIONS=--no-experimental-fetch yarn add supabase
-```
+## Documentation
 
-> **Note**
-For Bun versions below v1.0.17, you must add `supabase` as a [trusted dependency](https://bun.sh/guides/install/trusted) before running `bun add -D supabase`.
+- **[Vercel Deployment](VERCEL_DEPLOYMENT.md)** - Deploy to Vercel
+- **[Supabase Setup](SUPABASE_SETUP.md)** - Database and authentication setup
+- **[Edge Functions](SUPABASE_EDGE_FUNCTION_SETUP.md)** - Server-side AI integration
+- **[OpenAI Setup](OPENAI_KEY_SETUP.md)** - API key configuration
 
-<details>
-  <summary><b>macOS</b></summary>
+## Troubleshooting
 
-  Available via [Homebrew](https://brew.sh). To install:
+### Build fails with "supabaseUrl is required"
 
-  ```sh
-  brew install supabase/tap/supabase
-  ```
+**Solution**: Ensure your `.env` file exists and contains valid Supabase credentials.
 
-  To install the beta release channel:
-  
-  ```sh
-  brew install supabase/tap/supabase-beta
-  brew link --overwrite supabase-beta
-  ```
-  
-  To upgrade:
+### "expo module not found" during build
 
-  ```sh
-  brew upgrade supabase
-  ```
-</details>
+**Solution**: Run `npm install` to install all dependencies.
 
-<details>
-  <summary><b>Windows</b></summary>
+### Edge Functions not working
 
-  Available via [Scoop](https://scoop.sh). To install:
+**Solution**: Make sure you've deployed your Edge Functions to Supabase and set the `OPENAI_API_KEY` secret.
 
-  ```powershell
-  scoop bucket add supabase https://github.com/supabase/scoop-bucket.git
-  scoop install supabase
-  ```
+## Contributing
 
-  To upgrade:
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-  ```powershell
-  scoop update supabase
-  ```
-</details>
+## License
 
-<details>
-  <summary><b>Linux</b></summary>
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-  Available via [Homebrew](https://brew.sh) and Linux packages.
+## Support
 
-  #### via Homebrew
+For issues and questions:
+- Open an issue on GitHub
+- Check existing documentation in the `/docs` folder
+- Review Expo and Supabase documentation
 
-  To install:
+## Acknowledgments
 
-  ```sh
-  brew install supabase/tap/supabase
-  ```
-
-  To upgrade:
-
-  ```sh
-  brew upgrade supabase
-  ```
-
-  #### via Linux packages
-
-  Linux packages are provided in [Releases](https://github.com/supabase/cli/releases). To install, download the `.apk`/`.deb`/`.rpm`/`.pkg.tar.zst` file depending on your package manager and run the respective commands.
-
-  ```sh
-  sudo apk add --allow-untrusted <...>.apk
-  ```
-
-  ```sh
-  sudo dpkg -i <...>.deb
-  ```
-
-  ```sh
-  sudo rpm -i <...>.rpm
-  ```
-
-  ```sh
-  sudo pacman -U <...>.pkg.tar.zst
-  ```
-</details>
-
-<details>
-  <summary><b>Other Platforms</b></summary>
-
-  You can also install the CLI via [go modules](https://go.dev/ref/mod#go-install) without the help of package managers.
-
-  ```sh
-  go install github.com/supabase/cli@latest
-  ```
-
-  Add a symlink to the binary in `$PATH` for easier access:
-
-  ```sh
-  ln -s "$(go env GOPATH)/bin/cli" /usr/bin/supabase
-  ```
-
-  This works on other non-standard Linux distros.
-</details>
-
-<details>
-  <summary><b>Community Maintained Packages</b></summary>
-
-  Available via [pkgx](https://pkgx.sh/). Package script [here](https://github.com/pkgxdev/pantry/blob/main/projects/supabase.com/cli/package.yml).
-  To install in your working directory:
-
-  ```bash
-  pkgx install supabase
-  ```
-
-  Available via [Nixpkgs](https://nixos.org/). Package script [here](https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/supabase-cli/default.nix).
-</details>
-
-### Run the CLI
-
-```bash
-supabase bootstrap
-```
-
-Or using npx:
-
-```bash
-npx supabase bootstrap
-```
-
-The bootstrap command will guide you through the process of setting up a Supabase project using one of the [starter](https://github.com/supabase-community/supabase-samples/blob/main/samples.json) templates.
-
-## Docs
-
-Command & config reference can be found [here](https://supabase.com/docs/reference/cli/about).
-
-## Breaking changes
-
-We follow semantic versioning for changes that directly impact CLI commands, flags, and configurations.
-
-However, due to dependencies on other service images, we cannot guarantee that schema migrations, seed.sql, and generated types will always work for the same CLI major version. If you need such guarantees, we encourage you to pin a specific version of CLI in package.json.
-
-## Developing
-
-To run from source:
-
-```sh
-# Go >= 1.22
-go run . help
-```
+- Built with [Expo](https://expo.dev/)
+- Backend powered by [Supabase](https://supabase.com/)
+- AI by [OpenAI](https://openai.com/)
