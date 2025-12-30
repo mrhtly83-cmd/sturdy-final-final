@@ -21,15 +21,16 @@ git branch -r | grep -v '\->' | sed 's/origin\///'
 echo ""
 
 # List branches to be deleted (all except main)
-BRANCHES_TO_DELETE=$(git branch -r | grep -v '\->' | grep -v 'origin/main' | sed 's/origin\///' | xargs)
+# Using mapfile to properly handle branch names with spaces
+mapfile -t BRANCHES_TO_DELETE < <(git branch -r | grep -v '\->' | grep -v 'origin/main' | sed 's/origin\///' | sed 's/^[[:space:]]*//')
 
-if [ -z "$BRANCHES_TO_DELETE" ]; then
+if [ ${#BRANCHES_TO_DELETE[@]} -eq 0 ]; then
     echo "No branches to delete. Only 'main' branch exists."
     exit 0
 fi
 
 echo "The following branches will be deleted:"
-for branch in $BRANCHES_TO_DELETE; do
+for branch in "${BRANCHES_TO_DELETE[@]}"; do
     echo "  - $branch"
 done
 echo ""
@@ -46,7 +47,7 @@ echo ""
 echo "Deleting branches..."
 
 # Delete each branch
-for branch in $BRANCHES_TO_DELETE; do
+for branch in "${BRANCHES_TO_DELETE[@]}"; do
     echo "Deleting branch: $branch"
     git push origin --delete "$branch" || echo "Failed to delete $branch (it may already be deleted)"
 done
