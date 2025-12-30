@@ -1,77 +1,116 @@
-import { View, Text, StyleSheet, Pressable } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import { useNavigation } from "expo-router";
+import { useState } from "react";
+import { FlatList, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { theme } from "../../src/styles/theme";
 
+// Simulated scripts (replace with fetch logic)
+const MOCK_SCRIPTS = [
+  { id: "1", title: "Tantrum Support", snippet: "“I see you’re angry. That’s okay!”" },
+  { id: "2", title: "Bedtime Calm", snippet: "“Let’s take a deep breath together.”" },
+  { id: "3", title: "Screen Time Limits", snippet: "“We agreed, when the timer rings, screens go off.”" },
+];
+
 export default function HomeScreen() {
+  const navigation = useNavigation();
+  const [scripts, setScripts] = useState(MOCK_SCRIPTS);
+
+  // Example: could fetch scripts here
+  // useEffect(() => {
+  //   ...fetch recent scripts (setScripts)
+  // }, []);
+
+  const handleCreateScript = () => navigation.navigate("create" as never);
+  const handleViewScripts = () => {}; // Implement navigation to scripts history
+  const handleScriptPress = (item: any) => {}; // Implement open script details
+
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <LinearGradient
         colors={["#1A1440", "#0B0F17"]}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}
         style={styles.hero}
       >
-        <Text style={styles.heroKicker}>Today’s Focus</Text>
-        <Text style={styles.heroTitle}>Make today meaningful.</Text>
-        <Text style={styles.heroSub}>
-          Progress comes from clarity, not pressure.
-        </Text>
-
-        <Pressable style={styles.primaryButton}>
-          <Text style={styles.primaryButtonText}>Set today’s intention</Text>
+        <Text style={styles.greeting}>Hi, Sturdy Parent 👋</Text>
+        <Text style={styles.heroTitle}>Let’s make today count.</Text>
+        <Text style={styles.heroSub}>Gentle words. Stronger moments.</Text>
+        <Pressable style={styles.primaryButton} onPress={handleCreateScript}>
+          <Text style={styles.primaryButtonText}>+ Generate New Script</Text>
         </Pressable>
       </LinearGradient>
 
-      <View style={styles.content}>
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Daily progress</Text>
-          <Text style={styles.cardValue}>0% completed</Text>
-          <Text style={styles.cardHint}>One focused action is enough to start.</Text>
+      {/* Progress Card */}
+      <View style={styles.card}>
+        <Text style={styles.cardLabel}>This Week’s Progress</Text>
+        <View style={styles.progressBarBackground}>
+          <View style={[styles.progressBarFill, { width: "25%" }]} />
         </View>
-
-        <Text style={styles.sectionTitle}>Quick actions</Text>
-        <View style={styles.row}>
-          <View style={styles.smallCard}>
-            <Text style={styles.smallCardTitle}>Add task</Text>
-            <Text style={styles.smallCardHint}>Small wins matter</Text>
-          </View>
-          <View style={styles.smallCard}>
-            <Text style={styles.smallCardTitle}>Plan week</Text>
-            <Text style={styles.smallCardHint}>Zoom out</Text>
-          </View>
-        </View>
+        <Text style={styles.cardValue}>1 of 5 free scripts used</Text>
       </View>
-    </View>
+
+      {/* Quick Actions */}
+      <View style={styles.quickActions}>
+        <Pressable style={styles.quickButton} onPress={handleCreateScript}>
+          <Text style={styles.quickButtonText}>Generate Script</Text>
+        </Pressable>
+        <Pressable style={styles.quickButton} onPress={handleViewScripts}>
+          <Text style={styles.quickButtonText}>My Scripts</Text>
+        </Pressable>
+      </View>
+
+      {/* Latest Scripts */}
+      <Text style={styles.sectionTitle}>Your Latest Scripts</Text>
+      <FlatList
+        data={scripts}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={{ paddingLeft: 10, paddingBottom: 8 }}
+        renderItem={({ item }) => (
+          <Pressable style={styles.scriptCard} onPress={() => handleScriptPress(item)}>
+            <Text style={styles.scriptTitle}>{item.title}</Text>
+            <Text style={styles.scriptSnippet} numberOfLines={2}>{item.snippet}</Text>
+          </Pressable>
+        )}
+      />
+
+      {/* Upsell Card */}
+      <View style={styles.upsellCard}>
+        <Text style={styles.upsellText}>
+          🎉 Did you know? Premium users unlock audio playback and unlimited script saves!
+        </Text>
+      </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: theme.colors.bg },
-
   hero: {
-    paddingTop: 60,
+    paddingTop: 50,
     paddingHorizontal: theme.spacing.lg,
     paddingBottom: theme.spacing.xl,
     borderBottomLeftRadius: 28,
     borderBottomRightRadius: 28,
+    marginBottom: 16,
   },
-  heroKicker: {
+  greeting: {
     color: "#B9A7FF",
-    fontSize: theme.textSize.sm,
+    fontSize: 16,
     fontWeight: "800",
-    marginBottom: 10,
+    marginBottom: 8,
   },
   heroTitle: {
-    color: "#FFFFFF",
-    fontSize: 34,
+    color: "#fff",
+    fontSize: 32,
     fontWeight: "900",
-    marginBottom: 10,
-    lineHeight: 40,
+    marginBottom: 6,
+    lineHeight: 38,
   },
   heroSub: {
-    color: "rgba(255,255,255,0.75)",
+    color: "rgba(255,255,255,0.8)",
     fontSize: theme.textSize.md,
-    lineHeight: 22,
     marginBottom: theme.spacing.lg,
   },
   primaryButton: {
@@ -80,57 +119,110 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.md,
     alignItems: "center",
     width: "80%",
+    alignSelf: "center",
+    marginTop: theme.spacing.sm,
   },
   primaryButtonText: {
     color: "#1A1440",
     fontSize: theme.textSize.md,
     fontWeight: "900",
   },
-
-  content: { padding: theme.spacing.lg },
-
   card: {
     backgroundColor: theme.colors.surface,
     borderRadius: theme.radius.md,
     padding: theme.spacing.lg,
     borderWidth: 1,
     borderColor: theme.colors.border,
-    marginBottom: theme.spacing.lg,
+    marginHorizontal: theme.spacing.lg,
+    marginBottom: theme.spacing.md,
+    alignItems: "center",
   },
-  cardTitle: {
+  cardLabel: {
     color: theme.colors.muted,
-    fontSize: theme.textSize.sm,
+    fontWeight: "600",
+    fontSize: 13,
     marginBottom: 8,
-    fontWeight: "700",
   },
   cardValue: {
     color: theme.colors.text,
-    fontSize: theme.textSize.lg,
-    fontWeight: "900",
-    marginBottom: 6,
+    fontSize: theme.textSize.md,
+    fontWeight: "800",
+    marginTop: 6,
   },
-  cardHint: { color: theme.colors.muted, fontSize: theme.textSize.sm },
-
+  progressBarBackground: {
+    width: "100%",
+    height: 8,
+    backgroundColor: "#ececec",
+    borderRadius: 5,
+    overflow: "hidden",
+  },
+  progressBarFill: {
+    height: "100%",
+    backgroundColor: theme.colors.accent,
+    borderRadius: 5,
+  },
+  quickActions: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginHorizontal: theme.spacing.lg,
+    marginBottom: 12,
+    gap: 12,
+  },
+  quickButton: {
+    flex: 1,
+    backgroundColor: theme.colors.accent,
+    paddingVertical: 11,
+    borderRadius: 16,
+    alignItems: "center",
+    marginHorizontal: 2,
+  },
+  quickButtonText: {
+    color: "#fff",
+    fontWeight: "700",
+    fontSize: 15,
+  },
   sectionTitle: {
     color: theme.colors.text,
-    fontSize: theme.textSize.md,
-    fontWeight: "900",
-    marginBottom: theme.spacing.sm,
+    fontSize: 17,
+    fontWeight: "700",
+    marginLeft: theme.spacing.lg,
+    marginBottom: 8,
+    marginTop: 8,
   },
-  row: { flexDirection: "row", gap: theme.spacing.sm },
-  smallCard: {
-    flex: 1,
+  scriptCard: {
     backgroundColor: theme.colors.surface2,
-    borderRadius: theme.radius.md,
-    padding: theme.spacing.md,
+    borderRadius: 16,
+    padding: 14,
+    marginRight: 12,
+    minWidth: 150,
+    maxWidth: 180,
     borderWidth: 1,
     borderColor: theme.colors.border,
   },
-  smallCardTitle: {
+  scriptTitle: {
     color: theme.colors.text,
-    fontSize: theme.textSize.md,
-    fontWeight: "800",
-    marginBottom: 4,
+    fontSize: 15,
+    fontWeight: "700",
+    marginBottom: 3,
   },
-  smallCardHint: { color: theme.colors.muted, fontSize: theme.textSize.sm },
+  scriptSnippet: {
+    color: theme.colors.muted,
+    fontSize: 13,
+  },
+  upsellCard: {
+    backgroundColor: "#F3FBFF",
+    borderRadius: 14,
+    padding: 18,
+    alignItems: "center",
+    margin: 22,
+    marginBottom: 34,
+    borderWidth: 1,
+    borderColor: "#CBDCF3",
+  },
+  upsellText: {
+    color: "#204C5F",
+    textAlign: "center",
+    fontSize: 14,
+    fontWeight: "600",
+  },
 });
