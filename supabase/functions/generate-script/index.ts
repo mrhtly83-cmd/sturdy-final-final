@@ -93,7 +93,8 @@ Format the response as a natural script the parent can read or adapt.`
     const data = await response.json()
 
     if (!response.ok) {
-      throw new Error(data.error?.message || 'OpenAI API error')
+      const errorMsg = data.error?.message || 'OpenAI API request failed'
+      throw new Error(`OpenAI API error (${response.status}): ${errorMsg}`)
     }
 
     const generatedScript = data.choices[0].message.content
@@ -104,7 +105,13 @@ Format the response as a natural script the parent can read or adapt.`
     )
 
   } catch (error) {
-    console.error('Error:', error)
+    // Log error details for debugging (without sensitive data)
+    console.error('Script generation failed:', {
+      message: error.message,
+      name: error.name,
+      timestamp: new Date().toISOString(),
+    })
+    
     return new Response(
       JSON.stringify({ error: error.message || 'Failed to generate script' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
