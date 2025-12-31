@@ -54,6 +54,12 @@ export default function ScriptPreview({ isPremium = false }) {
     }
   };
 
+  const handleShowUpgradeModal = () => {
+    if (!isPremium) {
+      setShowModal(true);
+    }
+  };
+
   return (
     <motion.div
       initial="hidden"
@@ -115,21 +121,27 @@ export default function ScriptPreview({ isPremium = false }) {
       </div>
 
       <div className="flex flex-col gap-3 md:flex-row">
-        <button className="flex-1 rounded-2xl bg-rose-400/80 px-4 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-white shadow-lg shadow-rose-500/40 transition hover:-translate-y-0.5">
+        <button
+          type="button"
+          onClick={handleShowUpgradeModal}
+          disabled={!isPremium}
+          className={`flex-1 rounded-2xl bg-rose-400/80 px-4 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-white shadow-lg shadow-rose-500/40 transition hover:-translate-y-0.5 ${!isPremium ? "cursor-not-allowed opacity-60 hover:translate-y-0" : ""}`}
+        >
           ❤️ Save to Journal
         </button>
-        <button className="flex-1 rounded-2xl border border-white/20 px-4 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-white transition hover:-translate-y-0.5">
+        <button
+          type="button"
+          onClick={handleShowUpgradeModal}
+          disabled={!isPremium}
+          className={`flex-1 rounded-2xl border border-white/20 px-4 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-white transition hover:-translate-y-0.5 ${!isPremium ? "cursor-not-allowed opacity-60 hover:translate-y-0" : ""}`}
+        >
           🔁 Share with Co-Parent
         </button>
         <div className="relative flex-1">
           <button
             className="w-full rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-white transition hover:-translate-y-0.5"
             type="button"
-            onClick={() => {
-              if (!isPremium) {
-                setShowModal(true);
-              }
-            }}
+            onClick={handleShowUpgradeModal}
           >
             🔊 Play Audio
           </button>
@@ -137,7 +149,7 @@ export default function ScriptPreview({ isPremium = false }) {
             <>
               <div className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-r from-transparent via-black/70 to-transparent" />
               <p className="mt-2 text-center text-[0.6rem] uppercase tracking-[0.5em] text-white/60">
-                Available in Sturdy Complete
+                Available in Sturdy Complete (audio, co-parent sync, favorites + journal)
               </p>
             </>
           )}

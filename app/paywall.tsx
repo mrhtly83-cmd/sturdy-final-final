@@ -11,9 +11,11 @@ export default function PaywallScreen() {
       <Text style={styles.subtitle}>More support when you need it most.</Text>
 
       <View style={styles.benefits}>
-        <Text style={styles.bullet}>• Save scripts to Journal</Text>
+        <Text style={styles.bullet}>• Unlimited scripts</Text>
+        <Text style={styles.bullet}>• Audio playback</Text>
         <Text style={styles.bullet}>• Co-parent sync</Text>
-        <Text style={styles.bullet}>• More scripts per month</Text>
+        <Text style={styles.bullet}>• Favorites + journal</Text>
+        <Text style={styles.bullet}>• Priority support</Text>
       </View>
 
       <TouchableOpacity

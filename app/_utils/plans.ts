@@ -18,9 +18,10 @@ export const plans: Plan[] = [
     price: "$0",
     interval: "month",
     features: [
-      "5 scripts per week",
-      "Basic templates",
-      "Community support",
+      "Limited scripts (5/week)",
+      "No audio playback",
+      "No co-parent sync",
+      "No favorites or journal",
     ],
   },
   {
@@ -30,8 +31,9 @@ export const plans: Plan[] = [
     interval: "month",
     features: [
       "Unlimited scripts",
-      "All templates",
-      "Save & playback",
+      "Audio playback",
+      "Co-parent sync",
+      "Favorites + journal",
       "Priority support",
     ],
     popular: true,
@@ -43,8 +45,9 @@ export const plans: Plan[] = [
     interval: "year",
     features: [
       "Unlimited scripts",
-      "All templates",
-      "Save & playback",
+      "Audio playback",
+      "Co-parent sync",
+      "Favorites + journal",
       "Priority support",
       "2 months free",
     ],

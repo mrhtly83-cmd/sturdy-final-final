@@ -115,7 +115,7 @@ export default function HomeScreen() {
       {showUpsell && (
         <View style={styles.upsellCard}>
           <Text style={styles.upsellText}>
-            🚀 You’ve hit your free script limit! Unlock unlimited scripts, saving, and playback with Sturdy Complete.
+            🚀 You’ve hit your free script limit! Unlock unlimited scripts, co-parent sync, favorites/journal, and audio playback with Sturdy Complete.
           </Text>
           <Pressable style={styles.upsellButton} onPress={handleUpgrade}>
             <Text style={styles.upsellButtonText}>Upgrade Now</Text>
