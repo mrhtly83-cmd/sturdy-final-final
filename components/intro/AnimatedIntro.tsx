@@ -33,7 +33,7 @@ const palette = {
   surface: "rgba(255,255,255,0.78)",
   border: "rgba(15,23,42,0.08)",
 };
-const CARD_BASIS = "48%";
+const WORK_CARD_BASIS = "48%";
 
 export default function AnimatedIntro() {
   const [activeTab, setActiveTab] = useState<(typeof tabs)[number]>("Behavior");
@@ -130,8 +130,8 @@ export default function AnimatedIntro() {
           </View>
 
           <View style={styles.cardGrid}>
-            {workItems.map((item, index) => (
-              <View key={`${item.title}-${index}`} style={styles.workCard}>
+            {workItems.map((item) => (
+              <View key={item.title} style={styles.workCard}>
                 <View style={styles.workIconWrap}>
                   <Ionicons name={item.icon} size={22} color="#fff" />
                 </View>
@@ -379,7 +379,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   workCard: {
-    flexBasis: CARD_BASIS,
+    flexBasis: WORK_CARD_BASIS,
     flexGrow: 1,
     flexShrink: 0,
     flexDirection: "row",
