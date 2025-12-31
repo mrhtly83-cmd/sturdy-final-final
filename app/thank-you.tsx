@@ -10,7 +10,7 @@ export default function ThankYouPage() {
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={["#132038", theme.colors.bg]}
+        colors={[theme.colors.surface, theme.colors.bg]}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}
         style={styles.card}
@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
     marginBottom: theme.spacing.sm,
   },
   badgeText: {
-    color: "#0B0F17",
+    color: theme.colors.bg,
     fontSize: 28,
     fontWeight: "900",
   },
@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: theme.spacing.lg,
   },
   buttonText: {
-    color: "#0B0F17",
+    color: theme.colors.bg,
     fontSize: theme.textSize.md,
     fontWeight: "800",
   },
