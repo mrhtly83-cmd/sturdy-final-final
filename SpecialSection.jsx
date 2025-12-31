@@ -1,9 +1,9 @@
 import React from "react";
 
 const highlights = [
-  "Just-in-time scripts built on attachment + behavior science.",
-  "Tone + neurotype controls so every sentence feels like yours.",
-  "Share, save, and reflect with a journal tailored to co-parents.",
+  "Connection-first words that calm intense moments, not scripts that feel robotic.",
+  "A science layer beneath every script so you know why the language works.",
+  "Reusable, savable scripts you can sync with a co-parent or keep in your journal.",
 ];
 
 export default function SpecialSection() {

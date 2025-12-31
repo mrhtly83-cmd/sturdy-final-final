@@ -18,8 +18,17 @@ export default function CreateStep1() {
   const [gender, setGender] = useState<string | null>(null);
   const [age, setAge] = useState<string | null>(null);
 
-  const genderOptions = ['Boy', 'Girl', 'Non-binary'];
-  const ageOptions = ['Toddler (1-3)', 'School Age (5-10)', 'Tween (11-13)', 'Teen (14-18)'];
+  const genderOptions = [
+    { label: 'Boy', icon: '👦' },
+    { label: 'Girl', icon: '👧' },
+    { label: 'Non-binary', icon: '🧒' },
+  ];
+  const ageOptions = [
+    { label: 'Toddler (1-3)', icon: '🍼' },
+    { label: 'School Age (5-10)', icon: '📚' },
+    { label: 'Tween (11-13)', icon: '🎧' },
+    { label: 'Teen (14-18)', icon: '🎒' },
+  ];
 
   const isValid = gender && age;
 
@@ -53,14 +62,17 @@ export default function CreateStep1() {
       <View style={styles.optionGroup}>
         {genderOptions.map((g) => (
           <TouchableOpacity
-            key={g}
+            key={g.label}
             style={[
               styles.option,
-              gender === g && styles.optionSelected,
+              gender === g.label && styles.optionSelected,
             ]}
-            onPress={() => setGender(g)}
+            onPress={() => setGender(g.label)}
           >
-            <Text style={styles.optionText}>{g}</Text>
+            <Text style={styles.optionText}>
+              <Text style={styles.icon}>{g.icon} </Text>
+              {g.label}
+            </Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -70,14 +82,17 @@ export default function CreateStep1() {
       <View style={styles.optionGroup}>
         {ageOptions.map((a) => (
           <TouchableOpacity
-            key={a}
+            key={a.label}
             style={[
               styles.option,
-              age === a && styles.optionSelected,
+              age === a.label && styles.optionSelected,
             ]}
-            onPress={() => setAge(a)}
+            onPress={() => setAge(a.label)}
           >
-            <Text style={styles.optionText}>{a}</Text>
+            <Text style={styles.optionText}>
+              <Text style={styles.icon}>{a.icon} </Text>
+              {a.label}
+            </Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -169,5 +184,8 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#888',
     textAlign: 'center',
+  },
+  icon: {
+    fontSize: 16,
   },
 });
