@@ -1,11 +1,18 @@
 import React, { useState } from "react";
 import { View, Text, Pressable, StyleSheet, ScrollView } from "react-native";
 import { MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { PLAN_DETAILS, PlanKey } from "../../src/constants/billing";
 
 interface PremiumPaywallProps {
+  onSubscribeWeekly: () => void;
   onSubscribeMonthly: () => void;
   onSubscribeLifetime: () => void;
 }
+const SECONDARY_PLAN_MAP: Record<PlanKey, PlanKey> = {
+  weekly: "monthly",
+  monthly: "lifetime",
+  lifetime: "monthly",
+};
 
 interface FeatureProps {
   icon: keyof typeof MaterialIcons.glyphMap;
@@ -13,13 +20,27 @@ interface FeatureProps {
   lock?: boolean;
 }
 
-export default function PremiumPaywall({ onSubscribeMonthly, onSubscribeLifetime }: PremiumPaywallProps) {
-  const [selectedPlan, setSelectedPlan] = useState<"monthly" | "lifetime">("monthly");
+export default function PremiumPaywall({
+  onSubscribeWeekly,
+  onSubscribeMonthly,
+  onSubscribeLifetime,
+}: PremiumPaywallProps) {
+  const [selectedPlan, setSelectedPlan] = useState<PlanKey>("monthly");
 
-  const priceText = selectedPlan === "monthly" ? "$4.99 / mo" : "Lifetime access";
-  const ctaStyle = selectedPlan === "monthly" ? styles.ctaMonthly : styles.ctaLifetime;
-  const ctaHandler = selectedPlan === "monthly" ? onSubscribeMonthly : onSubscribeLifetime;
-  const ctaLabel = selectedPlan === "monthly" ? "Subscribe Monthly" : "Subscribe Lifetime";
+  const priceText = PLAN_DETAILS[selectedPlan].price;
+  const planHandlers: Record<PlanKey, () => void> = {
+    weekly: onSubscribeWeekly,
+    monthly: onSubscribeMonthly,
+    lifetime: onSubscribeLifetime,
+  };
+
+  const ctaStyle = selectedPlan === "lifetime" ? styles.ctaLifetime : styles.ctaMonthly;
+  const ctaHandler = planHandlers[selectedPlan];
+  const ctaLabel = PLAN_DETAILS[selectedPlan].cta;
+  const ctaIcon = selectedPlan === "lifetime" ? "infinity" : "credit-card-outline";
+
+  const secondaryPlan = SECONDARY_PLAN_MAP[selectedPlan];
+  const secondaryHandler = planHandlers[secondaryPlan];
 
   return (
     <ScrollView contentContainerStyle={styles.bg}>
@@ -34,6 +55,14 @@ export default function PremiumPaywall({ onSubscribeMonthly, onSubscribeLifetime
         </Text>
 
         <View style={styles.planTabs}>
+          <Pressable
+            style={[styles.planTab, selectedPlan === "weekly" && styles.selectedTab]}
+            onPress={() => setSelectedPlan("weekly")}
+          >
+            <Text style={selectedPlan === "weekly" ? styles.tabTextSelected : styles.tabText}>
+              Weekly
+            </Text>
+          </Pressable>
           <Pressable
             style={[styles.planTab, selectedPlan === "monthly" && styles.selectedTab]}
             onPress={() => setSelectedPlan("monthly")}
@@ -54,7 +83,7 @@ export default function PremiumPaywall({ onSubscribeMonthly, onSubscribeLifetime
         </View>
 
         <View style={styles.featureList}>
-          <Feature icon="check-circle" text="Unlimited Scripts" />
+          <Feature icon="check-circle" text={PLAN_DETAILS[selectedPlan].scriptsCopy} />
           <Feature icon="check-circle" text="Audio Script Playback" />
           <Feature icon="check-circle" text="Co-Parent Sync" />
           <Feature icon="check-circle" text="Save & revisit favorites" />
@@ -64,7 +93,7 @@ export default function PremiumPaywall({ onSubscribeMonthly, onSubscribeLifetime
 
         <Pressable style={ctaStyle} onPress={ctaHandler}>
           <MaterialCommunityIcons
-            name={selectedPlan === "monthly" ? "credit-card-outline" : "infinity"}
+            name={ctaIcon}
             size={22}
             color="#fff"
           />
@@ -73,20 +102,20 @@ export default function PremiumPaywall({ onSubscribeMonthly, onSubscribeLifetime
 
         <Pressable
           style={[ctaStyle, styles.secondaryCta]}
-          onPress={selectedPlan === "monthly" ? onSubscribeLifetime : onSubscribeMonthly}
+          onPress={secondaryHandler}
         >
           <MaterialCommunityIcons
-            name={selectedPlan === "monthly" ? "infinity" : "credit-card-outline"}
+            name={secondaryPlan === "lifetime" ? "infinity" : "credit-card-outline"}
             size={22}
-            color={selectedPlan === "monthly" ? "#fbb900" : "#36d4ba"}
+            color={secondaryPlan === "lifetime" ? "#fbb900" : "#36d4ba"}
           />
           <Text
             style={[
               styles.ctaText,
-              selectedPlan === "monthly" ? styles.ctaTextAltLifetime : styles.ctaTextAltMonthly,
+              secondaryPlan === "lifetime" ? styles.ctaTextAltLifetime : styles.ctaTextAltMonthly,
             ]}
           >
-            {selectedPlan === "monthly" ? "Go Lifetime" : "Go Monthly"}
+            {PLAN_DETAILS[secondaryPlan].cta}
           </Text>
         </Pressable>
 
