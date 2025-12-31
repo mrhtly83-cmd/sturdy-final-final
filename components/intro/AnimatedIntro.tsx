@@ -44,16 +44,16 @@ const featureItems = [
 
 const quickSteps = [
   {
-    title: "1. Choose the child",
-    caption: "Pick the profile that anchors the script in familiarity.",
+    title: "1. Select child & situation",
+    caption: "Pick who needs calm and the moment that needs words.",
   },
   {
-    title: "2. Tune tone & neurotype",
-    caption: "Match your energy so you feel ready to speak.",
+    title: "2. Get your script",
+    caption: "See connection-first words tuned to tone and neurotype.",
   },
   {
-    title: "3. Describe the moment",
-    caption: "Capture details, then grab the words and send them out.",
+    title: "3. Use, save, or share",
+    caption: "Use it now, save to journal, or share with co-parent.",
   },
 ];
 
