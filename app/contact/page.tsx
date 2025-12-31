@@ -21,7 +21,7 @@ export default function ContactPage() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Contact Us</Text>
-      <Text style={styles.subtitle}>We'd love to hear from you!</Text>
+      <Text style={styles.subtitle}>We’d love to hear from you!</Text>
 
       <TextInput
         style={styles.input}
