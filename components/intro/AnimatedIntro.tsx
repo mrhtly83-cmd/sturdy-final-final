@@ -34,10 +34,17 @@ const palette = {
   border: "rgba(15,23,42,0.08)",
 };
 const WORK_CARD_BASIS = "48%";
+const primaryLogo = require("../../assets/images/logo.png");
+const fallbackLogo = require("../../assets/images/icon.png");
+const profileName = "Emma";
+const profileBadgeValue = 10;
+const repairStreak = 12;
+const noop = () => {};
 
 export default function AnimatedIntro() {
   const [activeTab, setActiveTab] = useState<(typeof tabs)[number]>("Behavior");
   const pulse = useRef(new Animated.Value(1)).current;
+  const [logoSource, setLogoSource] = useState(primaryLogo);
 
   useEffect(() => {
     const loop = Animated.loop(
@@ -76,9 +83,10 @@ export default function AnimatedIntro() {
           <View style={styles.brandRow}>
             <View style={styles.logoWrap}>
               <Image
-                source={require("../../assets/images/logo.png")}
+                source={logoSource}
                 style={styles.logo}
                 resizeMode="contain"
+                onError={() => setLogoSource(fallbackLogo)}
               />
             </View>
             <View>
@@ -87,16 +95,16 @@ export default function AnimatedIntro() {
             </View>
           </View>
 
-          <Pressable style={styles.profileButton}>
+          <Pressable style={styles.profileButton} onPress={noop}>
             <View style={styles.profileBadge}>
-              <Text style={styles.profileBadgeText}>10</Text>
+              <Text style={styles.profileBadgeText}>{profileBadgeValue}</Text>
             </View>
-            <Text style={styles.profileText}>Profile: Emma</Text>
+            <Text style={styles.profileText}>Profile: {profileName}</Text>
             <Text style={styles.caret}>▾</Text>
           </Pressable>
         </View>
 
-        <View style={styles.heroCard}>
+        <Pressable style={styles.heroCard} onPress={noop}>
           <View style={styles.heroOverlay} />
           <Animated.View
             style={[styles.pulseHalo, { transform: [{ scale: pulse }], opacity: pulseOpacity }]}
@@ -107,7 +115,7 @@ export default function AnimatedIntro() {
           <Text style={styles.heroTitle}>I NEED HELP NOW</Text>
           <Text style={styles.heroSubtitle}>Script me through a crisis</Text>
           <Text style={styles.heroNote}>The SOS Button · Sticky Hero</Text>
-        </View>
+        </Pressable>
 
         <View style={styles.sectionCard}>
           <View style={styles.sectionHeader}>
@@ -131,7 +139,7 @@ export default function AnimatedIntro() {
 
           <View style={styles.cardGrid}>
             {workItems.map((item) => (
-              <View key={item.title} style={styles.workCard}>
+              <Pressable key={item.title} style={styles.workCard} onPress={noop}>
                 <View style={styles.workIconWrap}>
                   <Ionicons name={item.icon} size={22} color="#fff" />
                 </View>
@@ -139,7 +147,7 @@ export default function AnimatedIntro() {
                   <Text style={styles.workTitle}>{item.title}</Text>
                   <Text style={styles.workSubtitle}>{item.subtitle}</Text>
                 </View>
-              </View>
+              </Pressable>
             ))}
           </View>
         </View>
@@ -150,19 +158,25 @@ export default function AnimatedIntro() {
             <Text style={styles.practiceTitle}>Keep the repair streak alive.</Text>
           </View>
           <View style={styles.practiceActions}>
-            <Pressable style={styles.secondaryButton}>
+            <Pressable style={styles.secondaryButton} onPress={noop}>
               <Text style={styles.secondaryButtonText}>+ Log a Rupture</Text>
             </Pressable>
-            <Pressable style={styles.primaryButton}>
-              <Text style={styles.primaryButtonText}>View Repair Streak: 12 🔥</Text>
+            <Pressable style={styles.primaryButton} onPress={noop}>
+              <Text style={styles.primaryButtonText}>View Repair Streak: {repairStreak} 🔥</Text>
             </Pressable>
           </View>
         </View>
 
         <View style={styles.footer}>
-          <Text style={styles.footerItem}>Home</Text>
-          <Text style={styles.footerItem}>Chat with Sturdy</Text>
-          <Text style={styles.footerItem}>Profile</Text>
+          <Pressable onPress={noop}>
+            <Text style={styles.footerItem}>Home</Text>
+          </Pressable>
+          <Pressable onPress={noop}>
+            <Text style={styles.footerItem}>Chat with Sturdy</Text>
+          </Pressable>
+          <Pressable onPress={noop}>
+            <Text style={styles.footerItem}>Profile</Text>
+          </Pressable>
         </View>
       </ScrollView>
     </View>
