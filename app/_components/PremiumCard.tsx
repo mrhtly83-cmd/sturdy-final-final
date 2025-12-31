@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
   },
   headerRow: { flexDirection: "row", alignItems: "center", marginBottom: 10 },
   title: { color: "#222", fontSize: 25, fontWeight: "700", marginLeft: 10 },
-  subtitle: { color: "#434", fontSize: 17, marginVertical: 9 },
+  subtitle: { color: "#434343", fontSize: 17, marginVertical: 9 },
   features: { margin: 14 },
   featureRow: { flexDirection: "row", alignItems: "center", marginBottom: 7 },
   featureText: { fontSize: 16, color: "#222", marginLeft: 6 },
