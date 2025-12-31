@@ -17,12 +17,12 @@ export default function StruggleScreen() {
   const [selected, setSelected] = useState<string | null>(null);
 
   const struggles = [
-    'Big Emotions',
-    'Aggression',
-    'Resistance / Defiance',
-    'Siblings',
-    'Screen Time',
-    'School & Anxiety',
+    { label: 'Big Emotions', icon: '🌊', helper: 'Tantrums, tears, shutdowns' },
+    { label: 'Aggression', icon: '🧱', helper: 'Hitting, throwing, unsafe moves' },
+    { label: 'Resistance / Defiance', icon: '🧭', helper: 'Refusing requests, digging in' },
+    { label: 'Siblings', icon: '🤝', helper: 'Fights, jealousy, competition' },
+    { label: 'Screen Time', icon: '📱', helper: 'Transitions off devices' },
+    { label: 'School & Anxiety', icon: '🎒', helper: 'Drop-offs, homework stress' },
   ];
 
   const isValid = selected !== null;
@@ -45,14 +45,18 @@ export default function StruggleScreen() {
       <View style={styles.optionGroup}>
         {struggles.map((item) => (
           <TouchableOpacity
-            key={item}
+            key={item.label}
             style={[
               styles.option,
-              selected === item && styles.optionSelected,
+              selected === item.label && styles.optionSelected,
             ]}
-            onPress={() => setSelected(item)}
+            onPress={() => setSelected(item.label)}
           >
-            <Text style={styles.optionText}>{item}</Text>
+            <Text style={styles.optionText}>
+              <Text style={styles.icon}>{item.icon} </Text>
+              {item.label}
+            </Text>
+            <Text style={styles.helperText}>{item.helper}</Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -120,5 +124,13 @@ const styles = StyleSheet.create({
   },
   buttonDisabled: {
     backgroundColor: '#ccc',
+  },
+  helperText: {
+    fontSize: 13,
+    color: '#555',
+    marginTop: 6,
+  },
+  icon: {
+    fontSize: 16,
   },
 });

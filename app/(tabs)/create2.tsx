@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -24,11 +25,27 @@ export default function Step3ToneScreen() {
   const [customTone, setCustomTone] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [generatedScript, setGeneratedScript] = useState<string | null>(null);
+  const [neurotype, setNeurotype] = useState<string | null>(null);
+  const [momentDetail, setMomentDetail] = useState<string>('');
 
   const tones = ['Warm', 'Clear', 'Neutral', 'Empowering', 'Funny', 'Custom'];
+  const neurotypes = ['Neurotypical', 'Autistic', 'ADHD', 'Sensory Seeking'];
+  const momentSuggestions = [
+    'They threw the tablet when screen time ended and are pacing the room.',
+    'They froze at school drop-off and are clinging to me with watery eyes.',
+  ];
   const isCustom = tone === 'Custom';
 
   const isValid = tone && (tone !== 'Custom' || customTone.trim().length > 0);
+
+  const tonePreview: Record<string, string> = {
+    Warm: '“I can see this is really hard right now. I’m here with you.”',
+    Clear: '“This is tough. Let’s take one breath, then we’ll clean up together.”',
+    Neutral: '“I notice you’re upset. Let’s figure out the next step.”',
+    Empowering: '“You’ve handled big feelings before. Want to try your calm trick?”',
+    Funny: '“Uh oh, meltdown meteor! Let’s defuse it with our silly breath?”',
+    Custom: customTone || 'Your custom tone preview will show here.',
+  };
 
   const handleGenerateScript = async () => {
     if (!user) {
@@ -59,12 +76,20 @@ export default function Step3ToneScreen() {
 
       const apiTone = toneMap[tone || 'Neutral'];
 
+      const contextNote = [
+        isCustom ? customTone : null,
+        neurotype ? `Neurotype: ${neurotype}` : null,
+        momentDetail ? `Moment: ${momentDetail}` : null,
+      ]
+        .filter(Boolean)
+        .join(' | ');
+
       // Generate script with actual form data
       const script = await generateScript({
         childAge: formData.childAge,
         struggle: formData.struggle,
         tone: apiTone,
-        context: isCustom ? customTone : undefined,
+        context: contextNote || undefined,
       });
 
       setGeneratedScript(script);
@@ -103,6 +128,25 @@ export default function Step3ToneScreen() {
     setGeneratedScript(null);
     setTone(null);
     setCustomTone('');
+    setNeurotype(null);
+    setMomentDetail('');
+  };
+
+  const handleSuggestMoment = () => {
+    const suggestion = momentSuggestions[Math.floor(Math.random() * momentSuggestions.length)];
+    setMomentDetail(suggestion);
+  };
+
+  const handleHearScript = () => {
+    if (!generatedScript) return;
+    if (Platform.OS === 'web' && typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      const utterance = new SpeechSynthesisUtterance(generatedScript);
+      utterance.rate = 0.95;
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(utterance);
+    } else {
+      Alert.alert('Playback unavailable', 'Voice playback is available in the web preview.');
+    }
   };
 
   if (generatedScript) {
@@ -114,6 +158,14 @@ export default function Step3ToneScreen() {
         <View style={styles.scriptContainer}>
           <Text style={styles.scriptText}>{generatedScript}</Text>
         </View>
+
+        <TouchableOpacity
+          style={styles.audioButton}
+          onPress={handleHearScript}
+        >
+          <Text style={styles.audioText}>🔊 Hear it read aloud</Text>
+          <Text style={styles.audioHint}>Helps when you need words without reading.</Text>
+        </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.continueButton}
@@ -153,15 +205,57 @@ export default function Step3ToneScreen() {
         ))}
       </View>
 
-      {isCustom && (
-        <TextInput
-          placeholder="Type your preferred tone..."
-          style={styles.input}
-          value={customTone}
-          onChangeText={setCustomTone}
-          editable={!loading}
-        />
+        {isCustom && (
+          <TextInput
+            placeholder="Type your preferred tone..."
+            style={styles.input}
+            value={customTone}
+            onChangeText={setCustomTone}
+            editable={!loading}
+          />
+        )}
+
+      {tone && (
+        <View style={styles.previewBox}>
+          <Text style={styles.previewLabel}>How this tone sounds:</Text>
+          <Text style={styles.previewText}>{tonePreview[tone]}</Text>
+        </View>
       )}
+
+      <Text style={styles.label}>Neurotype (optional)</Text>
+      <View style={styles.optionGroup}>
+        {neurotypes.map((nt) => (
+          <TouchableOpacity
+            key={nt}
+            style={[
+              styles.pill,
+              neurotype === nt && styles.optionSelected,
+            ]}
+            onPress={() => setNeurotype(nt)}
+            disabled={loading}
+          >
+            <Text style={styles.optionText}>{nt}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      <Text style={styles.label}>Describe the moment</Text>
+      <TextInput
+        placeholder="He threw the tablet when screen time ended..."
+        style={styles.textArea}
+        value={momentDetail}
+        onChangeText={setMomentDetail}
+        multiline
+        numberOfLines={4}
+        editable={!loading}
+      />
+      <TouchableOpacity
+        style={styles.suggestButton}
+        onPress={handleSuggestMoment}
+        disabled={loading}
+      >
+        <Text style={styles.suggestText}>🪄 Suggest a starter</Text>
+      </TouchableOpacity>
 
       <TouchableOpacity
         style={[
@@ -216,12 +310,28 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
   },
+  label: {
+    fontSize: 14,
+    color: '#666',
+    fontWeight: '500',
+    marginTop: 20,
+    marginBottom: 8,
+  },
   input: {
     marginTop: 16,
     padding: 14,
     backgroundColor: '#eee',
     borderRadius: 12,
     fontSize: 16,
+  },
+  textArea: {
+    marginTop: 8,
+    padding: 14,
+    backgroundColor: '#f5f5f5',
+    borderRadius: 12,
+    fontSize: 15,
+    minHeight: 120,
+    textAlignVertical: 'top',
   },
   continueButton: {
     marginTop: 40,
@@ -261,5 +371,67 @@ const styles = StyleSheet.create({
     color: '#4dd0a1',
     fontWeight: '600',
     fontSize: 16,
+  },
+  previewBox: {
+    marginTop: 16,
+    padding: 14,
+    borderRadius: 12,
+    backgroundColor: '#f0f9f6',
+    borderWidth: 1,
+    borderColor: '#d7f2ea',
+  },
+  previewLabel: {
+    fontSize: 13,
+    color: '#2d7b67',
+    fontWeight: '700',
+    marginBottom: 6,
+  },
+  previewText: {
+    fontSize: 15,
+    color: '#1c4f43',
+    lineHeight: 22,
+  },
+  pill: {
+    backgroundColor: '#f0f0f0',
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 20,
+    marginRight: 10,
+    marginBottom: 10,
+  },
+  textMuted: {
+    color: '#777',
+  },
+  suggestButton: {
+    marginTop: 10,
+    alignSelf: 'flex-start',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 14,
+    backgroundColor: '#e8f5e9',
+    borderColor: '#c8e6c9',
+    borderWidth: 1,
+  },
+  suggestText: {
+    color: '#2e7d32',
+    fontWeight: '600',
+  },
+  audioButton: {
+    marginTop: 12,
+    padding: 14,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#4dd0a1',
+    backgroundColor: '#f6fffb',
+  },
+  audioText: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#248f72',
+  },
+  audioHint: {
+    marginTop: 4,
+    fontSize: 13,
+    color: '#2d7b67',
   },
 });

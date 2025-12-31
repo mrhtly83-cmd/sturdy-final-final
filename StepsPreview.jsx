@@ -4,18 +4,18 @@ import { motion } from "framer-motion";
 const steps = [
   {
     number: "01",
-    title: "Choose the Child",
-    description: "Pick the profile that anchors the script in familiarity.",
+    title: "Select child & situation",
+    description: "Pick who needs support and the moment that needs words.",
   },
   {
     number: "02",
-    title: "Tune Tone & Neurotype",
-    description: "Match your energy so you feel ready to speak.",
+    title: "Get your script",
+    description: "See connection-first words tuned to tone and neurotype.",
   },
   {
     number: "03",
-    title: "Describe the Moment",
-    description: "Capture details, then grab the words.",
+    title: "Use, save, or share",
+    description: "Practice, save to your journal, or sync with co-parent.",
   },
 ];
 
