@@ -13,12 +13,17 @@ import {
 } from "react-native";
 
 const tabs = ["Behavior", "Learning", "Social"] as const;
-const workItems = [
+type IconName =
+  | "trail-sign-outline"
+  | "map-outline"
+  | "leaf-outline"
+  | "shield-checkmark-outline";
+const workItems: { title: string; subtitle: string; icon: IconName }[] = [
   { title: "Executive Function", subtitle: "Focus & Messiness", icon: "trail-sign-outline" },
   { title: "Sturdy Leadership", subtitle: "Boundaries", icon: "map-outline" },
   { title: "Resilient Learner", subtitle: "Grades & Giving Up", icon: "leaf-outline" },
   { title: "Social Wiring", subtitle: "Bullying / Peers", icon: "shield-checkmark-outline" },
-] as const;
+];
 
 const palette = {
   background: "#F8FAFC",
@@ -70,7 +75,7 @@ export default function AnimatedIntro() {
           <View style={styles.brandRow}>
             <View style={styles.logoWrap}>
               <Image
-                source={{ uri: "/assets/logo.png" }}
+                source={require("../../public/assets/logo.png")}
                 style={styles.logo}
                 resizeMode="contain"
               />
