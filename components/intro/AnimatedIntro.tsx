@@ -95,16 +95,26 @@ export default function AnimatedIntro() {
             </View>
           </View>
 
-          <Pressable style={styles.profileButton} onPress={noop}>
+          <Pressable
+            style={styles.profileButton}
+            onPress={noop}
+            accessibilityLabel="Open profile menu"
+            accessibilityHint="Coming soon"
+          >
             <View style={styles.profileBadge}>
               <Text style={styles.profileBadgeText}>{profileBadgeValue}</Text>
             </View>
             <Text style={styles.profileText}>Profile: {profileName}</Text>
-            <Text style={styles.caret}>▾</Text>
+            <Ionicons name="chevron-down" size={16} color={palette.muted} />
           </Pressable>
         </View>
 
-        <Pressable style={styles.heroCard} onPress={noop}>
+        <Pressable
+          style={styles.heroCard}
+          onPress={noop}
+          accessibilityLabel="SOS: I need help now"
+          accessibilityHint="Opens crisis guidance"
+        >
           <View style={styles.heroOverlay} />
           <Animated.View
             style={[styles.pulseHalo, { transform: [{ scale: pulse }], opacity: pulseOpacity }]}
@@ -139,7 +149,13 @@ export default function AnimatedIntro() {
 
           <View style={styles.cardGrid}>
             {workItems.map((item) => (
-              <Pressable key={item.title} style={styles.workCard} onPress={noop}>
+              <Pressable
+                key={item.title}
+                style={styles.workCard}
+                onPress={noop}
+                accessibilityLabel={`Open ${item.title}`}
+                accessibilityHint="Navigation coming soon"
+              >
                 <View style={styles.workIconWrap}>
                   <Ionicons name={item.icon} size={22} color="#fff" />
                 </View>
@@ -158,23 +174,41 @@ export default function AnimatedIntro() {
             <Text style={styles.practiceTitle}>Keep the repair streak alive.</Text>
           </View>
           <View style={styles.practiceActions}>
-            <Pressable style={styles.secondaryButton} onPress={noop}>
+            <Pressable
+              style={styles.secondaryButton}
+              onPress={noop}
+              accessibilityLabel="Log a rupture"
+              accessibilityHint="Navigation coming soon"
+            >
               <Text style={styles.secondaryButtonText}>+ Log a Rupture</Text>
             </Pressable>
-            <Pressable style={styles.primaryButton} onPress={noop}>
-              <Text style={styles.primaryButtonText}>View Repair Streak: {repairStreak} 🔥</Text>
+            <Pressable
+              style={styles.primaryButton}
+              onPress={noop}
+              accessibilityLabel="View repair streak"
+              accessibilityHint="Navigation coming soon"
+            >
+              <Text style={styles.primaryButtonText}>View Repair Streak: {repairStreak} days</Text>
             </Pressable>
           </View>
         </View>
 
         <View style={styles.footer}>
-          <Pressable onPress={noop}>
+          <Pressable onPress={noop} accessibilityLabel="Go to home" accessibilityHint="Coming soon">
             <Text style={styles.footerItem}>Home</Text>
           </Pressable>
-          <Pressable onPress={noop}>
+          <Pressable
+            onPress={noop}
+            accessibilityLabel="Chat with Sturdy"
+            accessibilityHint="Coming soon"
+          >
             <Text style={styles.footerItem}>Chat with Sturdy</Text>
           </Pressable>
-          <Pressable onPress={noop}>
+          <Pressable
+            onPress={noop}
+            accessibilityLabel="View profile"
+            accessibilityHint="Coming soon"
+          >
             <Text style={styles.footerItem}>Profile</Text>
           </Pressable>
         </View>
