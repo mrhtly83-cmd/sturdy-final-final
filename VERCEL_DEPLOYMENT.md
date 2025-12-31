@@ -35,9 +35,12 @@ In your Vercel project settings, go to "Environment Variables" and add:
 ```
 EXPO_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT.supabase.co
 EXPO_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key_here
 ```
 
-**Important**: The OpenAI API key should **NOT** be set in Vercel or client-side code. It must only be set as a secret in your Supabase Edge Functions. See `SUPABASE_EDGE_FUNCTION_SETUP.md` for details on setting up Edge Functions with the OpenAI API key.
+**Important Notes**:
+- The `SUPABASE_SERVICE_ROLE_KEY` is required for server-side API routes. Get this from your Supabase Dashboard > Settings > API > service_role key. **WARNING: This key bypasses Row Level Security and should NEVER be exposed to the client side.**
+- The OpenAI API key should **NOT** be set in Vercel or client-side code. It must only be set as a secret in your Supabase Edge Functions. See `SUPABASE_EDGE_FUNCTION_SETUP.md` for details on setting up Edge Functions with the OpenAI API key.
 
 ### 4. Deploy
 

@@ -223,6 +223,21 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
    - Verify that a profile is automatically created in the profiles table
    - Try creating a script and verify it's saved correctly
 
+## Environment Variables
+
+Make sure to set the following environment variables in your `.env` file:
+
+1. **Client-side variables** (safe to expose):
+   - `EXPO_PUBLIC_SUPABASE_URL`: Your Supabase project URL
+   - `EXPO_PUBLIC_SUPABASE_ANON_KEY`: Your Supabase anonymous/public key
+
+2. **Server-side variables** (NEVER expose to client):
+   - `SUPABASE_SERVICE_ROLE_KEY`: Your Supabase service role key (required for server-side API routes)
+     - Get this from: Supabase Dashboard > Settings > API > service_role key
+     - **WARNING**: This key bypasses Row Level Security and has admin privileges
+
+See `.env.example` for the complete list of required environment variables.
+
 ## Notes
 
 - All tables have Row Level Security (RLS) enabled for data protection
@@ -230,3 +245,4 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 - The `handle_new_user()` function automatically creates a profile when a user signs up
 - The weekly script usage counter can be reset manually or via a scheduled job
 - Make sure your Supabase URL and anon key are properly set in your `.env` file
+- The service role key is required for server-side API routes but should NEVER be exposed to the client
