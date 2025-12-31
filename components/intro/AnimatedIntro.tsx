@@ -33,6 +33,7 @@ const palette = {
   surface: "rgba(255,255,255,0.78)",
   border: "rgba(15,23,42,0.08)",
 };
+const CARD_BASIS = "48%";
 
 export default function AnimatedIntro() {
   const [activeTab, setActiveTab] = useState<(typeof tabs)[number]>("Behavior");
@@ -75,7 +76,7 @@ export default function AnimatedIntro() {
           <View style={styles.brandRow}>
             <View style={styles.logoWrap}>
               <Image
-                source={require("../../public/assets/logo.png")}
+                source={require("../../assets/images/logo.png")}
                 style={styles.logo}
                 resizeMode="contain"
               />
@@ -129,10 +130,10 @@ export default function AnimatedIntro() {
           </View>
 
           <View style={styles.cardGrid}>
-            {workItems.map((item) => (
-              <View key={item.title} style={styles.workCard}>
+            {workItems.map((item, index) => (
+              <View key={`${item.title}-${index}`} style={styles.workCard}>
                 <View style={styles.workIconWrap}>
-                  <Ionicons name={item.icon as any} size={22} color="#fff" />
+                  <Ionicons name={item.icon} size={22} color="#fff" />
                 </View>
                 <View>
                   <Text style={styles.workTitle}>{item.title}</Text>
@@ -378,7 +379,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   workCard: {
-    flexBasis: "48%",
+    flexBasis: CARD_BASIS,
     flexGrow: 1,
     flexShrink: 0,
     flexDirection: "row",
