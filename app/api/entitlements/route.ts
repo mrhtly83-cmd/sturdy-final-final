@@ -4,6 +4,11 @@
  */
 
 import { supabaseServer } from "../../_utils/supabaseServer";
+import {
+  PLAN_LIMITS,
+  isEntitlementPlan,
+  EntitlementPlan,
+} from "../../../src/constants/billing";
 
 export async function GET(request: Request) {
   try {
@@ -14,21 +19,46 @@ export async function GET(request: Request) {
       return Response.json({ error: "User ID is required" }, { status: 400 });
     }
 
-    // Get user entitlements
-    const { data: profile, error } = await supabaseServer
-      .from("profiles")
-      .select("subscription_status, subscription_plan")
-      .eq("id", userId)
-      .single();
+    const { data, error } = await supabaseServer
+      .from("entitlements")
+      .select("plan, journal, period_start, period_end, scripts_used")
+      .eq("user_id", userId)
+      .maybeSingle();
 
     if (error) {
       return Response.json({ error: error.message }, { status: 500 });
     }
 
+    const entitlements = data ?? {
+      plan: "free",
+      journal: false,
+      period_start: null,
+      period_end: null,
+      scripts_used: 0,
+    };
+
+    const planKey: EntitlementPlan = isEntitlementPlan(entitlements.plan) ? entitlements.plan : "free";
+
+    const limitValue = PLAN_LIMITS[planKey];
+    const scriptLimit = Number.isFinite(limitValue) ? limitValue : null;
+    const remainingScripts =
+      scriptLimit === null ? null : Math.max(scriptLimit - entitlements.scripts_used, 0);
+    const isActive =
+      planKey === "lifetime" ||
+      (entitlements.period_end
+        ? new Date(entitlements.period_end).getTime() > Date.now()
+        : planKey !== "free");
+
     return Response.json({
       entitlements: {
-        isPro: profile?.subscription_status === "active",
-        plan: profile?.subscription_plan || "free",
+        plan: planKey,
+        journal: entitlements.journal,
+        periodStart: entitlements.period_start,
+        periodEnd: entitlements.period_end,
+        scriptsUsed: entitlements.scripts_used,
+        scriptLimit,
+        remainingScripts,
+        isActive,
       },
     });
   } catch (error: any) {

@@ -223,6 +223,41 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
    - Verify that a profile is automatically created in the profiles table
    - Try creating a script and verify it's saved correctly
 
+## Billing Setup (Supabase + Stripe Payment Links)
+
+Before running the billing SQL, double-check your environment variables in `/workspaces/sturdy-final-final/.env` (or your deployment secrets) so `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` are present.
+
+**Plans**
+- Weekly: `$4.99 / week` — 10 scripts + journal (view-only after cap)
+- Monthly: `$9.99 / month` — 25 scripts + journal
+- Lifetime: `$49.99 lifetime` — unlimited + all features
+These numbers mirror the shared plan constants in `src/constants/billing.ts`; update both together.
+
+Run this in Supabase → SQL Editor to create the entitlements table and RLS policy:
+
+```sql
+create table if not exists public.entitlements (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  plan text not null check (plan in ('weekly', 'monthly', 'lifetime')),
+  journal boolean not null default false,
+  period_start timestamptz,
+  period_end timestamptz,
+  scripts_used integer not null default 0,
+  updated_at timestamptz not null default now()
+);
+
+alter table public.entitlements enable row level security;
+
+create policy "entitlements_select_own"
+on public.entitlements
+for select
+using (auth.uid() = user_id);
+```
+
+Notes:
+- The app updates `scripts_used` server-side using the service role key.
+- `period_end` is `NULL` for lifetime plans.
+
 ## Environment Variables
 
 Make sure to set the following environment variables in your `.env` file:

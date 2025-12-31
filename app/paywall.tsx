@@ -1,16 +1,34 @@
 import { useRouter } from "expo-router";
 import React from "react";
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import * as WebBrowser from "expo-web-browser";
 import PremiumPaywall from "./_components/PremiumPaywall";
 
 export default function PaywallScreen() {
   const router = useRouter();
 
+  const openPaymentLink = async (link?: string | null) => {
+    if (!link) {
+      Alert.alert(
+        "Payment link not configured",
+        "Add your Stripe Payment Link URLs to the .env file first."
+      );
+      return;
+    }
+
+    try {
+      await WebBrowser.openBrowserAsync(link);
+    } catch (error: any) {
+      Alert.alert("Unable to open checkout", error?.message ?? "Please try again.");
+    }
+  };
+
   return (
     <View style={styles.container}>
       <PremiumPaywall
-        onSubscribeMonthly={() => Alert.alert("Subscribe", "Monthly subscription placeholder")}
-        onSubscribeLifetime={() => Alert.alert("Subscribe", "Lifetime subscription placeholder")}
+        onSubscribeWeekly={() => openPaymentLink(process.env.EXPO_PUBLIC_STRIPE_WEEKLY_LINK)}
+        onSubscribeMonthly={() => openPaymentLink(process.env.EXPO_PUBLIC_STRIPE_MONTHLY_LINK)}
+        onSubscribeLifetime={() => openPaymentLink(process.env.EXPO_PUBLIC_STRIPE_LIFETIME_LINK)}
       />
 
       <TouchableOpacity style={styles.freeBtn} onPress={() => router.back()}>
