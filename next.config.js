@@ -4,9 +4,10 @@ const webpack = require('webpack');
 const nextConfig = {
   webpack: (config, { isServer }) => {
     if (!isServer) {
+      // Polyfill __dirname on the client to satisfy ua-parser-js when bundled for the browser.
       config.plugins.push(
         new webpack.DefinePlugin({
-          __dirname: JSON.stringify('/'),
+          __dirname: JSON.stringify('.'),
         }),
       );
     }
