@@ -8,7 +8,7 @@ import Stripe from "stripe";
 import { supabaseServer } from "../../../_utils/supabaseServer";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
-  apiVersion: "2024-12-18.acacia",
+  apiVersion: "2025-12-15.clover",
 });
 
 export async function POST(request: Request) {
@@ -53,7 +53,6 @@ export async function POST(request: Request) {
     }
 
     // Determine the plan interval based on price ID
-    const monthlyPriceId = process.env.NEXT_PUBLIC_STRIPE_PRICE_MONTHLY;
     const annualPriceId = process.env.NEXT_PUBLIC_STRIPE_PRICE_ANNUAL;
     
     let planInterval: "month" | "year" = "month";
