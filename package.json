@@ -51,7 +51,6 @@
     "stripe": "^20.1.0"
   },
   "devDependencies": {
-    "@expo/webpack-config": "~19.0.0",
     "@types/react": "~18.3.12",
     "@vitejs/plugin-react": "^5.1.2",
     "eslint": "^9.25.0",
