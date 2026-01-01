@@ -18,7 +18,7 @@ interface PremiumModalProps {
   onSelectTier: (tierId: 'core' | 'complete' | 'lifetime') => void;
 }
 
-const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
+const SUBSCRIPTION_TIERS: Array<SubscriptionTier & { id: 'core' | 'complete' | 'lifetime' }> = [
   {
     id: 'core',
     name: 'Core',
@@ -124,7 +124,7 @@ export default function PremiumModal({
                       styles.tierCard,
                       (isPopular || isBestValue) && styles.tierCardHighlight,
                     ]}
-                    onPress={() => onSelectTier(tier.id as 'core' | 'complete' | 'lifetime')}
+                    onPress={() => onSelectTier(tier.id)}
                     activeOpacity={0.8}
                   >
                     {isPopular && (

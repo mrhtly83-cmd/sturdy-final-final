@@ -1,6 +1,8 @@
 /* Global CSS styles - Clinical Luxury Design System */
 /* Design goal: Lower user cortisol through calming interface */
 
+/* Note: Inter font loaded from Google Fonts CDN for simplicity.
+   For production, consider self-hosting for better performance. */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 * {

@@ -15,7 +15,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- Profiles: Link to Auth
 CREATE TABLE IF NOT EXISTS profiles (
-  id uuid REFERENCES auth.users ON DELETE CASCADE PRIMARY KEY,
+  id uuid REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
   full_name text,
   is_premium boolean DEFAULT false,
   subscription_tier text DEFAULT 'free', -- 'free', 'core', 'complete', 'lifetime'
@@ -127,7 +127,7 @@ BEGIN
   INSERT INTO public.profiles (id, full_name, is_premium, subscription_tier, updated_at)
   VALUES (
     NEW.id,
-    NEW.raw_user_meta_data->>'full_name',
+    COALESCE(NEW.raw_user_meta_data->>'full_name', ''),
     false,
     'free',
     now()
