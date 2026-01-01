@@ -4,6 +4,14 @@ export interface User {
   id: string;
   email: string;
   created_at?: string;
+  // Stripe integration fields
+  stripe_customer_id?: string;
+  stripe_subscription_id?: string;
+  is_premium?: boolean;
+  plan_interval?: 'month' | 'year';
+  // Usage tracking fields
+  ai_requests_count?: number;
+  ai_requests_reset_at?: string;
 }
 
 export interface Profile {
@@ -45,4 +53,21 @@ export interface ScriptRequest {
   struggle: string;
   tone: 'gentle' | 'moderate' | 'firm';
   context?: string;
+}
+
+// Stripe-specific types
+export interface StripeCheckoutRequest {
+  priceId: string;
+  userId: string;
+}
+
+export interface StripeCheckoutResponse {
+  sessionId: string;
+  url: string;
+}
+
+export interface UsageInfo {
+  used: number;
+  limit: number | null; // null means unlimited (premium)
+  resetAt?: string;
 }
