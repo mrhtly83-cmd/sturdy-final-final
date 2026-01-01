@@ -2,7 +2,16 @@
 
 This document contains all the SQL commands needed to set up the database for the Sturdy Parent app.
 
-For the Phase 1 backend foundation (profiles, children, scripts), run the SQL in [`supabase/phase1_schema.sql`](supabase/phase1_schema.sql) inside the Supabase SQL editor before applying any additional migrations. That script also enables the `uuid-ossp` extension needed for `uuid_generate_v4()`.
+For the Phase 1 backend foundation (profiles, children, scripts):
+- Run the SQL in [`supabase/phase1_schema.sql`](supabase/phase1_schema.sql) inside the Supabase SQL editor.
+- The script enables the `uuid-ossp` extension needed for `uuid_generate_v4()` before applying any additional migrations.
+- Apply any other migrations in this document afterward as needed (for example, the billing/entitlements steps).
+
+Enable the UUID extension once before running the table statements:
+
+```sql
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+```
 
 ## Tables
 
@@ -14,8 +23,8 @@ CREATE TABLE IF NOT EXISTS profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   full_name TEXT,
   is_premium BOOLEAN DEFAULT FALSE,
-  subscription_tier TEXT DEFAULT 'free', -- 'free', 'core', 'complete', 'lifetime'
-  updated_at TIMESTAMPTZ
+  subscription_tier TEXT NOT NULL DEFAULT 'free' CHECK (subscription_tier IN ('free','core','complete','lifetime')),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- Enable Row Level Security
@@ -41,10 +50,10 @@ CREATE POLICY "Users can insert their own profile"
 -- Create children table
 CREATE TABLE IF NOT EXISTS children (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  parent_id UUID REFERENCES profiles(id),
-  name TEXT,
-  birth_date DATE,
-  neurotype TEXT DEFAULT 'Neurotypical',
+  parent_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  birth_date DATE NOT NULL,
+  neurotype TEXT DEFAULT 'neurotypical', -- Free-text to allow any neurotype (e.g., 'ADHD', 'Autism', 'PDA', etc.)
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -78,10 +87,10 @@ CREATE POLICY "Users can delete their own children"
 -- Create scripts table
 CREATE TABLE IF NOT EXISTS scripts (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  parent_id UUID REFERENCES profiles(id),
-  child_id UUID REFERENCES children(id),
-  situation TEXT,
-  generated_script TEXT,
+  parent_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  child_id UUID REFERENCES children(id) ON DELETE SET NULL,
+  situation TEXT NOT NULL,
+  generated_script TEXT NOT NULL,
   psych_insight TEXT,
   is_favorite BOOLEAN NOT NULL DEFAULT FALSE,
   created_at TIMESTAMPTZ DEFAULT NOW()
