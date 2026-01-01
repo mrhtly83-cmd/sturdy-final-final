@@ -1,4 +1,5 @@
-export type ScenarioType = "SOS" | "ExecutiveFunction" | "Rupture";
+import type { ScenarioType } from "../types";
+export type { ScenarioType };
 
 export type SturdyRequest = {
   parentId: string;
