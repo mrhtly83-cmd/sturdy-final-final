@@ -46,14 +46,19 @@ export interface Script {
   created_at: string;
 }
 
+export type ScenarioType = 'SOS' | 'ExecutiveFunction' | 'Rupture';
+
 export interface ScriptRequest {
-  childAge: number;
+  /** Optional numeric age; legacy callers may pass childAge while newer payloads can omit it */
+  childAge?: number;
+  childAgeYears?: number;
   childName?: string;
   neurotype?: string;
-  struggle: string;
-  tone: 'gentle' | 'moderate' | 'firm';
+  /** Description of the moment; backend requires at least one of struggle or description at runtime */
+  struggle?: string;
+  tone?: 'gentle' | 'moderate' | 'firm';
   context?: string;
-  scenarioType?: 'SOS' | 'ExecutiveFunction' | 'Rupture';
+  scenarioType?: ScenarioType;
   description?: string;
 }
 

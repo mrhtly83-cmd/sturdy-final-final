@@ -3,7 +3,13 @@ import { corsHeaders } from "../_shared/cors.ts";
 
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
 const OPENAI_MODEL = Deno.env.get("OPENAI_MODEL") || "gpt-4o-mini";
+const OPENAI_TEMPERATURE = Number(
+  Deno.env.get("OPENAI_TEMPERATURE") ?? "0.7",
+);
+const MAX_INPUT_LENGTH = 800;
+const MAX_CHILD_NAME_LENGTH = 120;
 
+// Keep in sync with src/types ScenarioType
 type ScenarioType = "SOS" | "ExecutiveFunction" | "Rupture";
 
 interface ScriptRequest {
@@ -67,7 +73,7 @@ function sanitizeInput(input: string | undefined | null): string {
     .replace(/[<>]/g, "")
     .replace(/\n{3,}/g, "\n\n")
     .trim()
-    .slice(0, 800);
+    .slice(0, MAX_INPUT_LENGTH);
 }
 
 function ageBand(age?: number | null): string {
@@ -127,7 +133,12 @@ function parseModelResponse(text: string): Parsed {
   const validation =
     validationMatch?.[1] || lines[0] || DEFAULT_RESPONSE.validation;
   const shift = shiftMatch?.[1] || lines[1] || DEFAULT_RESPONSE.shift;
-  const scriptRaw = scriptMatch?.[1] || lines[2] || DEFAULT_RESPONSE.script;
+  const quoteMatch = text.match(/[“"](.*?)[”"]/);
+  const scriptRaw =
+    scriptMatch?.[1] ||
+    quoteMatch?.[1] ||
+    lines[2] ||
+    DEFAULT_RESPONSE.script;
   const script =
     scriptRaw.startsWith("“") || scriptRaw.startsWith('"')
       ? scriptRaw
@@ -163,12 +174,21 @@ serve(async (req) => {
       );
     }
 
+    // Prefer explicit childAgeYears; fall back to legacy childAge for callers still using the older field
     const childAgeYears = body.childAgeYears ?? body.childAge ?? null;
     const scenarioType: ScenarioType = body.scenarioType ?? "SOS";
     const context = sanitizeInput(body.context);
     const tone = body.tone;
     const neurotype = sanitizeInput(body.neurotype);
     const childName = sanitizeInput(body.childName);
+    if (childName && childName.length > MAX_CHILD_NAME_LENGTH) {
+      return new Response(
+        JSON.stringify({
+          error: `childName must be ${MAX_CHILD_NAME_LENGTH} characters or fewer`,
+        }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
 
     const userPrompt = buildUserPrompt({
       description,
@@ -192,7 +212,7 @@ serve(async (req) => {
           { role: "system", content: SYSTEM_PROMPT },
           { role: "user", content: userPrompt },
         ],
-        temperature: 0.7,
+        temperature: OPENAI_TEMPERATURE,
       }),
     });
 
