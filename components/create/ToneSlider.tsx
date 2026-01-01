@@ -1,9 +1,8 @@
 // Phase 3: Tone Slider Component
-// Custom range input from "Gentle" to "Firm"
+// Custom range input from "Gentle" to "Firm" (no external dependencies)
 
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import Slider from '@react-native-community/slider';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { ToneLevel } from '../../src/types';
 
 interface ToneSliderProps {
@@ -11,64 +10,48 @@ interface ToneSliderProps {
   onChange: (tone: ToneLevel) => void;
 }
 
-const TONE_VALUES: ToneLevel[] = ['gentle', 'moderate', 'firm'];
-const TONE_LABELS: Record<ToneLevel, string> = {
-  gentle: 'Gentle',
-  moderate: 'Moderate',
-  firm: 'Firm',
-};
+const TONE_OPTIONS: Array<{ value: ToneLevel; label: string }> = [
+  { value: 'gentle', label: 'Gentle' },
+  { value: 'moderate', label: 'Moderate' },
+  { value: 'firm', label: 'Firm' },
+];
 
 export default function ToneSlider({ value, onChange }: ToneSliderProps) {
-  const currentIndex = TONE_VALUES.indexOf(value);
-
-  const handleValueChange = (newValue: number) => {
-    const index = Math.round(newValue);
-    onChange(TONE_VALUES[index]);
-  };
-
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.label}>Tone</Text>
-        <Text style={styles.currentValue}>{TONE_LABELS[value]}</Text>
+        <Text style={styles.currentValue}>
+          {TONE_OPTIONS.find(t => t.value === value)?.label || 'Moderate'}
+        </Text>
       </View>
       <Text style={styles.subtitle}>
         How firm do you need to be in this moment?
       </Text>
 
-      <View style={styles.sliderContainer}>
-        <Slider
-          style={styles.slider}
-          minimumValue={0}
-          maximumValue={2}
-          step={1}
-          value={currentIndex}
-          onValueChange={handleValueChange}
-          minimumTrackTintColor="#334155" // clinical-action
-          maximumTrackTintColor="#E2E8F0"
-          thumbTintColor="#334155" // clinical-action
-        />
-        
-        <View style={styles.labelsContainer}>
-          <Text style={[
-            styles.sliderLabel,
-            value === 'gentle' && styles.sliderLabelActive,
-          ]}>
-            Gentle
-          </Text>
-          <Text style={[
-            styles.sliderLabel,
-            value === 'moderate' && styles.sliderLabelActive,
-          ]}>
-            Moderate
-          </Text>
-          <Text style={[
-            styles.sliderLabel,
-            value === 'firm' && styles.sliderLabelActive,
-          ]}>
-            Firm
-          </Text>
-        </View>
+      <View style={styles.segmentedControl}>
+        {TONE_OPTIONS.map((option) => {
+          const isSelected = value === option.value;
+          
+          return (
+            <TouchableOpacity
+              key={option.value}
+              style={[
+                styles.segment,
+                isSelected && styles.segmentSelected,
+              ]}
+              onPress={() => onChange(option.value)}
+              activeOpacity={0.7}
+            >
+              <Text style={[
+                styles.segmentText,
+                isSelected && styles.segmentTextSelected,
+              ]}>
+                {option.label}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
       </View>
 
       <View style={styles.descriptionContainer}>
@@ -112,7 +95,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: '#334155', // clinical-action
-    textTransform: 'capitalize',
   },
   subtitle: {
     fontSize: 14,
@@ -120,27 +102,29 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     lineHeight: 1.625 * 14, // leading-relaxed-plus
   },
-  sliderContainer: {
-    paddingHorizontal: 8,
-  },
-  slider: {
-    width: '100%',
-    height: 40,
-  },
-  labelsContainer: {
+  segmentedControl: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 4,
-    marginTop: -8,
+    backgroundColor: '#F1F5F9',
+    borderRadius: 12,
+    padding: 4,
   },
-  sliderLabel: {
-    fontSize: 12,
-    color: '#94A3B8',
-    fontWeight: '500',
+  segment: {
+    flex: 1,
+    paddingVertical: 10,
+    alignItems: 'center',
+    borderRadius: 8,
   },
-  sliderLabelActive: {
-    color: '#334155',
+  segmentSelected: {
+    backgroundColor: '#334155', // clinical-action
+  },
+  segmentText: {
+    fontSize: 14,
     fontWeight: '600',
+    color: '#94A3B8',
+    letterSpacing: 0.025,
+  },
+  segmentTextSelected: {
+    color: '#FFFFFF',
   },
   descriptionContainer: {
     marginTop: 12,
