@@ -4,6 +4,8 @@ import { Profile, Script, Child } from "../types";
 
 /**
  * Create a user profile on signup
+ * User ID comes from auth.users, profile is auto-created by trigger
+ * This function is for manual profile creation if needed
  */
 export async function createUserProfile(
   userId: string,
@@ -212,11 +214,6 @@ export async function deleteScript(scriptId: string): Promise<boolean> {
   } catch (error) {
     console.error("Error deleting script:", error);
     return false;
-  }
-}
-  } catch (error) {
-    console.error("Error fetching user scripts:", error);
-    return [];
   }
 }
 

@@ -333,13 +333,17 @@ export default function CreateNewScreen() {
 
       {/* Generate Button */}
       <View style={styles.buttonContainer}>
-        <Text style={styles.generateButton} onPress={handleGenerate}>
+        <TouchableOpacity 
+          style={styles.generateButton}
+          onPress={handleGenerate}
+          disabled={isGenerating}
+        >
           {isGenerating ? (
             <ActivityIndicator color="#FFFFFF" />
           ) : (
             <Text style={styles.generateButtonText}>Generate Script</Text>
           )}
-        </Text>
+        </TouchableOpacity>
       </View>
 
       {/* Premium Modal */}
