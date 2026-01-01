@@ -1,22 +1,22 @@
 // src/services/databaseService.ts
 import { supabase } from "../lib/supabase";
-import { Profile, Script } from "../types";
+import { Profile, Script, Child } from "../types";
 
 /**
  * Create a user profile on signup
  */
 export async function createUserProfile(
   userId: string,
-  email: string
+  fullName?: string
 ): Promise<Profile | null> {
   try {
     const { data, error } = await supabase
       .from("profiles")
       .insert({
         id: userId,
-        email,
-        subscription_status: "free",
-        scripts_used_this_week: 0,
+        full_name: fullName || null,
+        is_premium: false,
+        subscription_tier: "free",
       })
       .select()
       .single();
@@ -49,26 +49,99 @@ export async function getUserProfile(userId: string): Promise<Profile | null> {
 }
 
 /**
+ * Get all children for a user
+ */
+export async function getUserChildren(userId: string): Promise<Child[]> {
+  try {
+    const { data, error } = await supabase
+      .from("children")
+      .select("*")
+      .eq("parent_id", userId)
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+    return data || [];
+  } catch (error) {
+    console.error("Error fetching children:", error);
+    return [];
+  }
+}
+
+/**
+ * Create a new child profile
+ */
+export async function createChild(
+  userId: string,
+  childData: {
+    name: string;
+    birth_date: string;
+    neurotype?: string;
+  }
+): Promise<Child | null> {
+  try {
+    const { data, error } = await supabase
+      .from("children")
+      .insert({
+        parent_id: userId,
+        name: childData.name,
+        birth_date: childData.birth_date,
+        neurotype: childData.neurotype || "Neurotypical",
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error("Error creating child:", error);
+    return null;
+  }
+}
+
+/**
+ * Update a child profile
+ */
+export async function updateChild(
+  childId: string,
+  updates: Partial<Pick<Child, "name" | "birth_date" | "neurotype">>
+): Promise<Child | null> {
+  try {
+    const { data, error } = await supabase
+      .from("children")
+      .update(updates)
+      .eq("id", childId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error("Error updating child:", error);
+    return null;
+  }
+}
+
+/**
  * Save a generated script
  */
 export async function saveScript(
   userId: string,
   scriptData: {
-    child_id?: string;
-    struggle: string;
-    tone: "gentle" | "moderate" | "firm";
-    content: string;
+    child_id?: string | null;
+    situation: string;
+    generated_script: string;
+    psych_insight?: string | null;
   }
 ): Promise<Script | null> {
   try {
     const { data, error } = await supabase
       .from("scripts")
       .insert({
-        user_id: userId,
-        child_id: scriptData.child_id,
-        struggle: scriptData.struggle,
-        tone: scriptData.tone,
-        content: scriptData.content,
+        parent_id: userId,
+        child_id: scriptData.child_id || null,
+        situation: scriptData.situation,
+        generated_script: scriptData.generated_script,
+        psych_insight: scriptData.psych_insight || null,
         is_favorite: false,
       })
       .select()
@@ -90,11 +163,57 @@ export async function getUserScripts(userId: string): Promise<Script[]> {
     const { data, error } = await supabase
       .from("scripts")
       .select("*")
-      .eq("user_id", userId)
+      .eq("parent_id", userId)
       .order("created_at", { ascending: false });
 
     if (error) throw error;
     return data || [];
+  } catch (error) {
+    console.error("Error fetching user scripts:", error);
+    return [];
+  }
+}
+
+/**
+ * Update script (e.g., toggle favorite)
+ */
+export async function updateScript(
+  scriptId: string,
+  updates: Partial<Pick<Script, "is_favorite">>
+): Promise<Script | null> {
+  try {
+    const { data, error } = await supabase
+      .from("scripts")
+      .update(updates)
+      .eq("id", scriptId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error("Error updating script:", error);
+    return null;
+  }
+}
+
+/**
+ * Delete a script
+ */
+export async function deleteScript(scriptId: string): Promise<boolean> {
+  try {
+    const { error } = await supabase
+      .from("scripts")
+      .delete()
+      .eq("id", scriptId);
+
+    if (error) throw error;
+    return true;
+  } catch (error) {
+    console.error("Error deleting script:", error);
+    return false;
+  }
+}
   } catch (error) {
     console.error("Error fetching user scripts:", error);
     return [];
