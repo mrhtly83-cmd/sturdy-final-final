@@ -53,6 +53,8 @@ export interface ScriptRequest {
   struggle: string;
   tone: 'gentle' | 'moderate' | 'firm';
   context?: string;
+  scenarioType?: 'SOS' | 'ExecutiveFunction' | 'Rupture';
+  description?: string;
 }
 
 // Stripe-specific types
