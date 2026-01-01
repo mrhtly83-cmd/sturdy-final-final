@@ -2,11 +2,13 @@ import React, { useState } from "react";
 import { View, Text, Pressable, StyleSheet, ScrollView } from "react-native";
 import { MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { PLAN_DETAILS, PlanKey } from "../../src/constants/billing";
+import { useStripeCheckout } from "../../hooks/useStripeCheckout";
 
 interface PremiumPaywallProps {
   onSubscribeWeekly: () => void;
   onSubscribeMonthly: () => void;
   onSubscribeLifetime: () => void;
+  useNewCheckout?: boolean; // Flag to use new Stripe checkout
 }
 const SECONDARY_PLAN_MAP: Record<PlanKey, PlanKey> = {
   weekly: "monthly",
@@ -24,8 +26,10 @@ export default function PremiumPaywall({
   onSubscribeWeekly,
   onSubscribeMonthly,
   onSubscribeLifetime,
+  useNewCheckout = true, // Default to new checkout
 }: PremiumPaywallProps) {
   const [selectedPlan, setSelectedPlan] = useState<PlanKey>("monthly");
+  const { startCheckout, loading: checkoutLoading } = useStripeCheckout();
 
   const priceText = PLAN_DETAILS[selectedPlan].price;
   const planHandlers: Record<PlanKey, () => void> = {
@@ -35,12 +39,48 @@ export default function PremiumPaywall({
   };
 
   const ctaStyle = selectedPlan === "lifetime" ? styles.ctaLifetime : styles.ctaMonthly;
-  const ctaHandler = planHandlers[selectedPlan];
   const ctaLabel = PLAN_DETAILS[selectedPlan].cta;
   const ctaIcon = selectedPlan === "lifetime" ? "infinity" : "credit-card-outline";
 
   const secondaryPlan = SECONDARY_PLAN_MAP[selectedPlan];
   const secondaryHandler = planHandlers[secondaryPlan];
+
+  // Handle CTA click with new or legacy checkout
+  const handleCtaClick = async () => {
+    if (useNewCheckout && (selectedPlan === "monthly" || selectedPlan === "weekly")) {
+      // Use new Stripe checkout for monthly/weekly (map weekly to monthly)
+      try {
+        await startCheckout({
+          planInterval: "month",
+        });
+      } catch (error) {
+        console.error("Checkout failed:", error);
+        // Fallback to legacy handler
+        planHandlers[selectedPlan]();
+      }
+    } else {
+      // Use legacy payment link handler for lifetime or if flag is disabled
+      planHandlers[selectedPlan]();
+    }
+  };
+
+  const handleSecondaryClick = async () => {
+    if (useNewCheckout && secondaryPlan === "monthly") {
+      // Use new Stripe checkout for monthly
+      try {
+        await startCheckout({
+          planInterval: "month",
+        });
+      } catch (error) {
+        console.error("Checkout failed:", error);
+        // Fallback to legacy handler
+        secondaryHandler();
+      }
+    } else {
+      // Use legacy payment link handler
+      secondaryHandler();
+    }
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.bg}>
@@ -91,18 +131,25 @@ export default function PremiumPaywall({
           <Feature icon="check-circle" text="Priority support" lock />
         </View>
 
-        <Pressable style={ctaStyle} onPress={ctaHandler}>
+        <Pressable
+          style={[ctaStyle, checkoutLoading && styles.ctaDisabled]}
+          onPress={handleCtaClick}
+          disabled={checkoutLoading}
+        >
           <MaterialCommunityIcons
             name={ctaIcon}
             size={22}
             color="#fff"
           />
-          <Text style={styles.ctaText}>{ctaLabel}</Text>
+          <Text style={styles.ctaText}>
+            {checkoutLoading ? "Loading..." : ctaLabel}
+          </Text>
         </Pressable>
 
         <Pressable
-          style={[ctaStyle, styles.secondaryCta]}
-          onPress={secondaryHandler}
+          style={[ctaStyle, styles.secondaryCta, checkoutLoading && styles.ctaDisabled]}
+          onPress={handleSecondaryClick}
+          disabled={checkoutLoading}
         >
           <MaterialCommunityIcons
             name={secondaryPlan === "lifetime" ? "infinity" : "credit-card-outline"}
@@ -115,7 +162,7 @@ export default function PremiumPaywall({
               secondaryPlan === "lifetime" ? styles.ctaTextAltLifetime : styles.ctaTextAltMonthly,
             ]}
           >
-            {PLAN_DETAILS[secondaryPlan].cta}
+            {checkoutLoading ? "Loading..." : PLAN_DETAILS[secondaryPlan].cta}
           </Text>
         </Pressable>
 
@@ -210,6 +257,9 @@ const styles = StyleSheet.create({
   ctaText: { color: "#fff", fontWeight: "bold", fontSize: 18, marginLeft: 10 },
   ctaTextAltMonthly: { color: "#36d4ba" },
   ctaTextAltLifetime: { color: "#fbb900" },
+  ctaDisabled: {
+    opacity: 0.6,
+  },
   secondaryCta: {
     backgroundColor: "#fff",
     borderWidth: 2,
