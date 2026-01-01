@@ -1,22 +1,32 @@
-import { View, Text, StyleSheet, Pressable, ScrollView, FlatList, ActivityIndicator } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { theme } from "../../src/styles/theme";
-import { LinearGradient } from "expo-linear-gradient";
-import { getUserScripts, getUserProfile } from "../../src/services/databaseService";
+import { ActivityIndicator, FlatList, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { useAuth } from "../../src/contexts/AuthContext";
+import { useChildren } from "../../src/hooks/useChildren";
 import { checkFreeLimitOrPaywall } from "../../src/lib/freeUsage";
+import { SturdyResponse } from "../../src/lib/sturdyBrain";
+import { getUserProfile, getUserScripts } from "../../src/services/databaseService";
+import { theme } from "../../src/styles/theme";
 
 const FREE_LIMIT = 5;
 
 export default function HomeScreen() {
   const router = useRouter();
   const { user } = useAuth();
+  const { children, loading: loadingChildren, error: childrenError } = useChildren();
 
   const [scripts, setScripts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any>(null);
   const [showUpsell, setShowUpsell] = useState(false);
+
+  // SOS state
+  const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
+  const [sosText, setSosText] = useState("");
+  const [sosLoading, setSosLoading] = useState(false);
+  const [sosError, setSosError] = useState<string | null>(null);
+  const [sosResponse, setSosResponse] = useState<SturdyResponse | null>(null);
 
   // Fetch scripts + profile on mount
   useEffect(() => {
@@ -42,7 +52,6 @@ export default function HomeScreen() {
   const handleCreateScript = () => router.push("/(tabs)/create");
   const handleViewScripts = () => router.push("/(tabs)/scripts");
   const handleScriptPress = (item: any) => {
-    // You can route to a script detail screen: /script/[id]
     router.push({ pathname: "/(tabs)/scripts", params: { open: item.id } });
   };
   const handleUpgrade = () => router.push("/paywall");
@@ -50,6 +59,39 @@ export default function HomeScreen() {
   // Compute progress
   const used = profile?.scripts_used_this_week ?? 0;
   const progress = Math.min(used / FREE_LIMIT, 1);
+
+  const handleSOS = async () => {
+    if (!sosText.trim()) {
+      setSosError("Tell us what’s happening so we can help.");
+      return;
+    }
+    setSosLoading(true);
+    setSosError(null);
+    setSosResponse(null);
+
+    try {
+      const res = await fetch("/api/sturdy/script", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          childId: selectedChildId,
+          scenarioType: "SOS",
+          description: sosText.trim(),
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        setSosError(data.error || "Something went wrong. Please try again.");
+        return;
+      }
+      setSosResponse(data as SturdyResponse);
+    } catch (err) {
+      setSosError("Network error. Please try again.");
+    } finally {
+      setSosLoading(false);
+    }
+  };
 
   return (
     <ScrollView style={styles.container}>
@@ -68,6 +110,71 @@ export default function HomeScreen() {
           <Text style={styles.primaryButtonText}>+ Generate New Script</Text>
         </Pressable>
       </LinearGradient>
+
+      {/* SOS Hero */}
+      <View style={styles.sosCard}>
+        <Text style={styles.sosLabel}>I NEED HELP NOW</Text>
+        <Text style={styles.sosSubtitle}>Script me through a crisis</Text>
+
+        {/* Child picker */}
+        {loadingChildren ? (
+          <ActivityIndicator />
+        ) : childrenError ? (
+          <Text style={styles.errorText}>{childrenError}</Text>
+        ) : (
+          <View style={styles.pickerBox}>
+            <Text style={styles.pickerLabel}>Choose a child (optional)</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.pillRow}>
+              {children.map((c) => {
+                const active = selectedChildId === c.id;
+                return (
+                  <Pressable
+                    key={c.id}
+                    style={[styles.pill, active && styles.pillActive]}
+                    onPress={() => setSelectedChildId(active ? null : c.id)}
+                  >
+                    <Text style={[styles.pillText, active && styles.pillTextActive]}>
+                      {c.name}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+              {children.length === 0 && <Text style={styles.muted}>No children yet</Text>}
+            </ScrollView>
+          </View>
+        )}
+
+        {/* SOS text input */}
+        <Text style={styles.inputLabel}>What is happening?</Text>
+        <TextInput
+          value={sosText}
+          onChangeText={setSosText}
+          placeholder="He threw the tablet when screen time ended..."
+          placeholderTextColor="#6B7280"
+          style={styles.textArea}
+          multiline
+        />
+
+        {sosError && <Text style={styles.errorText}>{sosError}</Text>}
+
+        <Pressable style={[styles.sosButton, sosLoading && styles.sosButtonDisabled]} onPress={handleSOS} disabled={sosLoading}>
+          <Text style={styles.sosButtonText}>{sosLoading ? "Thinking…" : "Script me through a crisis"}</Text>
+        </Pressable>
+
+        {/* SOS response */}
+        {sosResponse && (
+          <View style={styles.responseCard}>
+            <Text style={styles.responseLabel}>Validation</Text>
+            <Text style={styles.responseBody}>{sosResponse.validation}</Text>
+            <Text style={[styles.responseLabel, { marginTop: 12 }]}>Shift</Text>
+            <Text style={[styles.responseBody, { fontStyle: "italic" }]}>{sosResponse.shift}</Text>
+            <Text style={[styles.responseLabel, { marginTop: 12 }]}>Script</Text>
+            <View style={styles.scriptBubble}>
+              <Text style={styles.scriptText}>{sosResponse.script}</Text>
+            </View>
+          </View>
+        )}
+      </View>
 
       <View style={styles.card}>
         <Text style={styles.cardLabel}>This Week’s Progress</Text>
@@ -167,6 +274,108 @@ const styles = StyleSheet.create({
     color: "#1A1440",
     fontSize: theme.textSize.md,
     fontWeight: "900",
+  },
+  sosCard: {
+    backgroundColor: theme.colors.surface2,
+    borderRadius: 18,
+    padding: theme.spacing.lg,
+    marginHorizontal: theme.spacing.lg,
+    marginBottom: theme.spacing.lg,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  sosLabel: {
+    color: "#FACC15",
+    fontWeight: "900",
+    fontSize: 16,
+    marginBottom: 4,
+  },
+  sosSubtitle: {
+    color: theme.colors.text,
+    fontSize: 18,
+    fontWeight: "700",
+    marginBottom: 12,
+  },
+  pickerBox: { marginBottom: 12 },
+  pickerLabel: { color: theme.colors.muted, marginBottom: 6, fontWeight: "600" },
+  pillRow: { flexDirection: "row", gap: 8, alignItems: "center" },
+  pill: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    backgroundColor: "rgba(255,255,255,0.04)",
+  },
+  pillActive: {
+    backgroundColor: theme.colors.accent,
+    borderColor: theme.colors.accent,
+  },
+  pillText: { color: theme.colors.text, fontWeight: "700" },
+  pillTextActive: { color: "#fff" },
+  muted: { color: theme.colors.muted },
+  inputLabel: {
+    color: theme.colors.text,
+    fontWeight: "700",
+    marginTop: 6,
+    marginBottom: 6,
+  },
+  textArea: {
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    borderRadius: 12,
+    padding: 12,
+    color: theme.colors.text,
+    minHeight: 110,
+    backgroundColor: theme.colors.surface,
+    textAlignVertical: "top",
+    marginBottom: 8,
+  },
+  sosButton: {
+    backgroundColor: "#FACC15",
+    paddingVertical: 14,
+    borderRadius: 14,
+    alignItems: "center",
+    marginTop: 6,
+  },
+  sosButtonDisabled: { opacity: 0.7 },
+  sosButtonText: {
+    color: "#1F2937",
+    fontSize: 16,
+    fontWeight: "800",
+  },
+  responseCard: {
+    marginTop: 14,
+    padding: 12,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    backgroundColor: theme.colors.surface,
+  },
+  responseLabel: {
+    color: theme.colors.muted,
+    fontWeight: "700",
+    fontSize: 13,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+  responseBody: {
+    color: theme.colors.text,
+    fontSize: 15,
+    marginTop: 4,
+  },
+  scriptBubble: {
+    marginTop: 6,
+    padding: 12,
+    borderRadius: 12,
+    backgroundColor: theme.colors.surface2,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  scriptText: {
+    color: theme.colors.text,
+    fontSize: 16,
+    fontWeight: "700",
   },
   card: {
     backgroundColor: theme.colors.surface,
@@ -279,4 +488,5 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "800",
   },
+  errorText: { color: "#FCA5A5", marginTop: 4 },
 });
