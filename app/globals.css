@@ -1,4 +1,9 @@
-/* Global CSS styles for web platform */
+/* Global CSS styles - Clinical Luxury Design System */
+/* Design goal: Lower user cortisol through calming interface */
+
+/* Note: Inter font loaded from Google Fonts CDN for simplicity.
+   For production, consider self-hosting for better performance. */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 * {
   box-sizing: border-box;
@@ -9,16 +14,86 @@
 html,
 body {
   height: 100%;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  letter-spacing: 0.025em; /* Generous spacing for calm */
 }
 
 body {
-  background-color: #0B0F17;
-  color: #FFFFFF;
+  background-color: #F8FAFC; /* Clinical Base - calming off-white */
+  color: #0F172A; /* Clinical Text - deep navy */
+  line-height: 1.625; /* Relaxed leading for readability during stress */
 }
 
 #root {
   height: 100%;
+}
+
+/* Clinical Luxury Component Styles */
+
+/* Cards: Subtle borders, no heavy shadows */
+.clinical-card {
+  background-color: #FFFFFF;
+  border: 1px solid #F1F5F9; /* border-slate-100 */
+  border-radius: 1rem; /* rounded-2xl */
+  padding: 1.5rem;
+  transition: all 0.2s ease;
+}
+
+.clinical-card:hover {
+  border-color: #E2E8F0; /* slight interaction feedback */
+}
+
+/* Inputs: Large, soft-rounded corners */
+.clinical-input {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  font-size: 1rem;
+  line-height: 1.625;
+  color: #0F172A;
+  background-color: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 1rem; /* rounded-2xl */
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.clinical-input:focus {
+  border-color: #94A3B8; /* Clinical Accent */
+  box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.1);
+}
+
+/* Buttons */
+.clinical-button {
+  padding: 0.875rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.625;
+  color: #FFFFFF;
+  background-color: #334155; /* Clinical Action */
+  border: none;
+  border-radius: 1rem; /* rounded-2xl */
+  cursor: pointer;
+  transition: all 0.2s ease;
+  letter-spacing: 0.025em;
+}
+
+.clinical-button:hover {
+  background-color: #475569;
+}
+
+.clinical-button:active {
+  transform: scale(0.98);
+}
+
+/* SOS/Crisis button - muted gold */
+.clinical-button-sos {
+  background-color: #CA8A04;
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+.clinical-button-sos:hover {
+  background-color: #A16207;
 }
 
 /* Utility classes */
@@ -38,4 +113,25 @@ body {
 
 .mb-4 {
   margin-bottom: 1rem;
+}
+
+/* Typography utilities */
+.text-clinical {
+  color: #0F172A;
+}
+
+.text-clinical-accent {
+  color: #94A3B8;
+}
+
+.text-clinical-action {
+  color: #334155;
+}
+
+.leading-relaxed-plus {
+  line-height: 1.625;
+}
+
+.tracking-calm {
+  letter-spacing: 0.025em;
 }

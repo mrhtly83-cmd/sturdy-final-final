@@ -1,13 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
-
-export type Child = {
-  id: string;
-  user_id: string;
-  name: string;
-  birth_date: string; // ISO date string
-  created_at: string;
-};
+import { Child } from "../types";
 
 type UseChildrenResult = {
   children: Child[];
@@ -25,9 +18,16 @@ export function useChildren(): UseChildrenResult {
     setLoading(true);
     setError(null);
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setChildren([]);
+        return;
+      }
+
       const { data, error: supabaseError } = await supabase
         .from("children")
         .select("*")
+        .eq("parent_id", user.id)
         .order("created_at", { ascending: false });
 
       if (supabaseError) {
@@ -46,7 +46,7 @@ export function useChildren(): UseChildrenResult {
   useEffect(() => {
     fetchChildren();
 
-    // Optional: refetch on auth state changes
+    // Refetch on auth state changes
     const { data: authSub } = supabase.auth.onAuthStateChange(() => {
       fetchChildren();
     });

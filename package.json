@@ -10,7 +10,12 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "setup": "bash scripts/setup-environment.sh",
+    "verify": "bash scripts/verify-setup.sh",
+    "check-env": "node scripts/check-env.js",
+    "deploy-function": "bash scripts/deploy-edge-function.sh",
+    "postinstall": "node scripts/check-env.js || true"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
