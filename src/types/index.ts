@@ -1,5 +1,36 @@
 // src/types/index.ts
+// Type definitions matching Phase 1 Supabase schema
 
+// Database types matching the Supabase schema
+export interface Profile {
+  id: string; // UUID references auth.users
+  full_name: string | null;
+  is_premium: boolean;
+  subscription_tier: 'free' | 'core' | 'complete' | 'lifetime';
+  updated_at: string; // timestamp with time zone
+}
+
+export interface Child {
+  id: string; // UUID
+  parent_id: string; // UUID references profiles(id)
+  name: string | null;
+  birth_date: string | null; // date - for age-based logic
+  neurotype: string; // 'Neurotypical', 'ADHD', 'Autism', 'PDA', etc.
+  created_at: string; // timestamp with time zone
+}
+
+export interface Script {
+  id: string; // UUID
+  parent_id: string; // UUID references profiles(id)
+  child_id: string | null; // UUID references children(id), nullable
+  situation: string | null; // Description of the rupture/situation
+  generated_script: string | null; // AI-generated script text
+  psych_insight: string | null; // Psychological explanation
+  is_favorite: boolean;
+  created_at: string; // timestamp with time zone
+}
+
+// Legacy User type for backward compatibility
 export interface User {
   id: string;
   email: string;
@@ -14,52 +45,38 @@ export interface User {
   ai_requests_reset_at?: string;
 }
 
-export interface Profile {
-  id: string;
-  email: string;
-  full_name?: string;
-  subscription_status: 'free' | 'premium' | 'trial';
-  subscription_end_date?: string;
-  scripts_used_this_week: number;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface Child {
-  id: string;
-  user_id: string;
-  name: string;
-  age: number;
-  neurotype?: string;
-  notes?: string;
-  created_at: string;
-}
-
-export interface Script {
-  id: string;
-  user_id: string;
-  child_id?: string;
-  struggle: string;
-  tone: 'gentle' | 'moderate' | 'firm';
-  content: string;
-  is_favorite: boolean;
-  created_at: string;
-}
-
+// Frontend types
 export type ScenarioType = 'SOS' | 'ExecutiveFunction' | 'Rupture';
 
+export type ToneLevel = 'gentle' | 'moderate' | 'firm';
+
 export interface ScriptRequest {
-  /** Optional numeric age; legacy callers may pass childAge while newer payloads can omit it */
-  childAge?: number;
-  childAgeYears?: number;
+  // Child information
+  childId?: string;
   childName?: string;
+  childAge?: number; // Calculated from birth_date
+  childAgeYears?: number;
+  birthDate?: string;
   neurotype?: string;
-  /** Description of the moment; backend requires at least one of struggle or description at runtime */
-  struggle?: string;
-  tone?: 'gentle' | 'moderate' | 'firm';
+  
+  // Situation details
+  situation?: string;
+  struggle?: string; // Legacy field
+  description?: string;
+  
+  // Tone and context
+  tone?: ToneLevel;
   context?: string;
   scenarioType?: ScenarioType;
-  description?: string;
+  
+  // Crisis mode
+  isCrisis?: boolean;
+}
+
+export interface ScriptResponse {
+  script: string;
+  psych_insight?: string;
+  situation: string;
 }
 
 // Stripe-specific types
@@ -73,8 +90,28 @@ export interface StripeCheckoutResponse {
   url: string;
 }
 
+// Usage tracking for free tier (5 scripts limit)
 export interface UsageInfo {
   used: number;
   limit: number | null; // null means unlimited (premium)
   resetAt?: string;
+}
+
+// Premium modal content
+export interface PremiumFeature {
+  id: string;
+  name: string;
+  description: string;
+  icon?: string;
+  requiresTier: 'core' | 'complete' | 'lifetime';
+}
+
+// Subscription tiers with pricing
+export interface SubscriptionTier {
+  id: 'free' | 'core' | 'complete' | 'lifetime';
+  name: string;
+  price: number;
+  interval?: 'week' | 'month' | 'lifetime';
+  features: string[];
+  scriptLimit: number | null; // null = unlimited
 }
