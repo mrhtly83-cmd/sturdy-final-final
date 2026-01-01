@@ -2,25 +2,30 @@
 
 This document contains all the SQL commands needed to set up the database for the Sturdy Parent app.
 
+For the Phase 1 backend foundation (profiles, children, scripts):
+- Run the SQL in [`supabase/phase1_schema.sql`](supabase/phase1_schema.sql) inside the Supabase SQL editor.
+- The script enables the `uuid-ossp` extension needed for `uuid_generate_v4()` before applying any additional migrations.
+- Apply any other migrations in this document afterward as needed (for example, the billing/entitlements steps).
+
+Enable the UUID extension once before running the table statements:
+
+```sql
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+```
+
 ## Tables
 
 ### 1. Profiles Table
 
 ```sql
 -- Create profiles table
-CREATE TABLE profiles (
+CREATE TABLE IF NOT EXISTS profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-  email TEXT NOT NULL,
   full_name TEXT,
-  subscription_status TEXT NOT NULL DEFAULT 'free' CHECK (subscription_status IN ('free', 'premium', 'trial')),
-  subscription_end_date TIMESTAMPTZ,
-  scripts_used_this_week INTEGER NOT NULL DEFAULT 0,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  is_premium BOOLEAN DEFAULT FALSE,
+  subscription_tier TEXT NOT NULL DEFAULT 'free' CHECK (subscription_tier IN ('free','core','complete','lifetime')),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
 );
-
--- Create index on email
-CREATE INDEX idx_profiles_email ON profiles(email);
 
 -- Enable Row Level Security
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
@@ -43,18 +48,17 @@ CREATE POLICY "Users can insert their own profile"
 
 ```sql
 -- Create children table
-CREATE TABLE children (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+CREATE TABLE IF NOT EXISTS children (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  parent_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
-  age INTEGER NOT NULL CHECK (age > 0 AND age <= 18),
-  neurotype TEXT,
-  notes TEXT,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  birth_date DATE NOT NULL,
+  neurotype TEXT DEFAULT 'neurotypical', -- Free-text to allow any neurotype (e.g., 'ADHD', 'Autism', 'PDA', etc.)
+  created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Create index on user_id
-CREATE INDEX idx_children_user_id ON children(user_id);
+-- Create index on parent_id
+CREATE INDEX IF NOT EXISTS idx_children_parent_id ON children(parent_id);
 
 -- Enable Row Level Security
 ALTER TABLE children ENABLE ROW LEVEL SECURITY;
@@ -62,41 +66,39 @@ ALTER TABLE children ENABLE ROW LEVEL SECURITY;
 -- Create policies for children
 CREATE POLICY "Users can view their own children"
   ON children FOR SELECT
-  USING (auth.uid() = user_id);
+  USING (auth.uid() = parent_id);
 
 CREATE POLICY "Users can insert their own children"
   ON children FOR INSERT
-  WITH CHECK (auth.uid() = user_id);
+  WITH CHECK (auth.uid() = parent_id);
 
 CREATE POLICY "Users can update their own children"
   ON children FOR UPDATE
-  USING (auth.uid() = user_id);
+  USING (auth.uid() = parent_id);
 
 CREATE POLICY "Users can delete their own children"
   ON children FOR DELETE
-  USING (auth.uid() = user_id);
+  USING (auth.uid() = parent_id);
 ```
 
 ### 3. Scripts Table
 
 ```sql
 -- Create scripts table
-CREATE TABLE scripts (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+CREATE TABLE IF NOT EXISTS scripts (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  parent_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   child_id UUID REFERENCES children(id) ON DELETE SET NULL,
-  struggle TEXT NOT NULL,
-  tone TEXT NOT NULL CHECK (tone IN ('gentle', 'moderate', 'firm')),
-  content TEXT NOT NULL,
+  situation TEXT NOT NULL,
+  generated_script TEXT NOT NULL,
+  psych_insight TEXT,
   is_favorite BOOLEAN NOT NULL DEFAULT FALSE,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- Create indexes
-CREATE INDEX idx_scripts_user_id ON scripts(user_id);
-CREATE INDEX idx_scripts_child_id ON scripts(child_id);
-CREATE INDEX idx_scripts_created_at ON scripts(created_at DESC);
-CREATE INDEX idx_scripts_is_favorite ON scripts(is_favorite) WHERE is_favorite = TRUE;
+CREATE INDEX IF NOT EXISTS idx_scripts_parent_id ON scripts(parent_id);
+CREATE INDEX IF NOT EXISTS idx_scripts_child_id ON scripts(child_id);
 
 -- Enable Row Level Security
 ALTER TABLE scripts ENABLE ROW LEVEL SECURITY;
@@ -104,19 +106,19 @@ ALTER TABLE scripts ENABLE ROW LEVEL SECURITY;
 -- Create policies for scripts
 CREATE POLICY "Users can view their own scripts"
   ON scripts FOR SELECT
-  USING (auth.uid() = user_id);
+  USING (auth.uid() = parent_id);
 
 CREATE POLICY "Users can insert their own scripts"
   ON scripts FOR INSERT
-  WITH CHECK (auth.uid() = user_id);
+  WITH CHECK (auth.uid() = parent_id);
 
 CREATE POLICY "Users can update their own scripts"
   ON scripts FOR UPDATE
-  USING (auth.uid() = user_id);
+  USING (auth.uid() = parent_id);
 
 CREATE POLICY "Users can delete their own scripts"
   ON scripts FOR DELETE
-  USING (auth.uid() = user_id);
+  USING (auth.uid() = parent_id);
 ```
 
 ## Database Functions
@@ -128,12 +130,13 @@ CREATE POLICY "Users can delete their own scripts"
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO public.profiles (id, email, subscription_status, scripts_used_this_week)
+  INSERT INTO public.profiles (id, full_name, is_premium, subscription_tier, updated_at)
   VALUES (
     NEW.id,
-    NEW.email,
+    NEW.raw_user_meta_data->>'full_name',
+    FALSE,
     'free',
-    0
+    NOW()
   );
   RETURN NEW;
 END;
@@ -163,36 +166,6 @@ CREATE TRIGGER on_profile_updated
   BEFORE UPDATE ON profiles
   FOR EACH ROW
   EXECUTE FUNCTION public.handle_updated_at();
-```
-
-### 3. Increment Script Usage Function
-
-```sql
--- Function to increment script usage counter
-CREATE OR REPLACE FUNCTION public.increment_script_usage(user_id UUID)
-RETURNS VOID AS $$
-BEGIN
-  UPDATE public.profiles
-  SET scripts_used_this_week = scripts_used_this_week + 1,
-      updated_at = NOW()
-  WHERE id = user_id;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-```
-
-### 4. Reset Weekly Usage (Optional - for scheduled job)
-
-```sql
--- Function to reset weekly script usage counters
--- This should be run weekly via a cron job or scheduled function
-CREATE OR REPLACE FUNCTION public.reset_weekly_script_usage()
-RETURNS VOID AS $$
-BEGIN
-  UPDATE public.profiles
-  SET scripts_used_this_week = 0,
-      updated_at = NOW();
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
 ```
 
 ## Setup Instructions
