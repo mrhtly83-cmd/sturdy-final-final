@@ -117,9 +117,9 @@ export default function ChildSetupScreen() {
       {/* Neurotype Selector */}
       <View style={styles.inputGroup}>
         <Text style={styles.label}>Neurotype (Optional)</Text>
-          <Text style={styles.helper}>
-            Helps us tailor our approach to your child&apos;s needs
-          </Text>
+        <Text style={styles.helper}>
+          Helps us tailor our approach to your child&apos;s needs
+        </Text>
         <View style={styles.chipContainer}>
           {NEUROTYPES.map((type) => {
             const isSelected = neurotype === type;
