@@ -5,13 +5,8 @@
  */
 
 import Stripe from "stripe";
+import { getStripe } from "../../../_utils/stripeServer";
 import { supabaseAdmin } from "../../../_utils/supabaseAdmin";
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
-  apiVersion: "2025-12-15.clover",
-});
-
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || "";
 
 export async function POST(request: Request) {
   try {
@@ -28,7 +23,11 @@ export async function POST(request: Request) {
     // Verify webhook signature
     let event: Stripe.Event;
     try {
-      event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+      const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+      if (!webhookSecret) {
+        throw new Error("STRIPE_WEBHOOK_SECRET environment variable is not configured");
+      }
+      event = getStripe().webhooks.constructEvent(body, signature, webhookSecret);
     } catch (err: any) {
       console.error("Webhook signature verification failed:", err.message);
       return Response.json(
