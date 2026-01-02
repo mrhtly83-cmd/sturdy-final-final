@@ -57,8 +57,15 @@
     "stripe": "^20.1.0"
   },
   "devDependencies": {
+    "@types/jest": "^29.2.1",
+    "@types/jsdom": "^20.0.0",
+    "@types/node-forge": "^1.3.11",
     "@types/node": "^25.0.3",
+    "@types/phoenix": "^1.6.5",
+    "@types/prop-types": "^15.7.12",
     "@types/react": "19.1.1",
+    "@types/tough-cookie": "^4.0.5",
+    "@types/ws": "^8.5.14",
     "@vitejs/plugin-react": "^5.1.2",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~10.0.0",
