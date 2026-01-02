@@ -1,22 +1,14 @@
-import { Stack } from "expo-router";
-import { StatusBar } from "expo-status-bar";
-import { AuthProvider } from "../src/contexts/AuthContext";
-import { FormDataProvider } from "../src/contexts/FormDataContext";
+import type { ReactNode } from "react";
+import "./globals.css";
 
-/**
- * Root layout component for web platform
- */
-export default function RootLayoutWeb() {
+import { ChildProvider } from "../hooks/useChild";
+
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <AuthProvider>
-      <FormDataProvider>
-        <StatusBar style="light" />
-        <Stack
-          screenOptions={{
-            headerShown: false,
-          }}
-        />
-      </FormDataProvider>
-    </AuthProvider>
+    <html lang="en">
+      <body className="bg-brand-slate">
+        <ChildProvider>{children}</ChildProvider>
+      </body>
+    </html>
   );
 }
