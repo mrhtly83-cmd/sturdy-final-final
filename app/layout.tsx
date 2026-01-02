@@ -1,14 +1,22 @@
-import type { ReactNode } from "react";
-import "./globals.css";
+import { Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { ChildProvider } from "@/hooks/useChild";
+import { SOSButton } from "@/components/sturdy/SOSButton";
 
-import { ChildProvider } from "../hooks/useChild";
-
-export default function RootLayout({ children }: { children: ReactNode }) {
+/**
+ * Root layout component that wraps the entire app with ChildProvider context
+ */
+export default function RootLayout() {
   return (
-    <html lang="en">
-      <body className="bg-brand-slate">
-        <ChildProvider>{children}</ChildProvider>
-      </body>
-    </html>
+    <ChildProvider>
+      <StatusBar style="light" />
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          contentStyle: { backgroundColor: "#F8FAFC" }, // brand-slate
+        }}
+      />
+      <SOSButton />
+    </ChildProvider>
   );
 }
