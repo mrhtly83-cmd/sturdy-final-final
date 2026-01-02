@@ -7,9 +7,21 @@
 import Stripe from "stripe";
 import { supabaseServer } from "../../../_utils/supabaseServer";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
-  apiVersion: "2025-12-15.clover",
-});
+// Lazy initialization to avoid errors when env vars are not set during build
+let stripe: Stripe | null = null;
+
+function getStripe(): Stripe {
+  if (!stripe) {
+    const apiKey = process.env.STRIPE_SECRET_KEY;
+    if (!apiKey) {
+      throw new Error("STRIPE_SECRET_KEY environment variable is not configured");
+    }
+    stripe = new Stripe(apiKey, {
+      apiVersion: "2025-12-15.clover",
+    });
+  }
+  return stripe;
+}
 
 export async function POST(request: Request) {
   try {
@@ -62,9 +74,10 @@ export async function POST(request: Request) {
 
     // Create or retrieve customer
     let customerId = user.stripe_customer_id;
+    const stripeClient = getStripe();
     
     if (!customerId) {
-      const customer = await stripe.customers.create({
+      const customer = await stripeClient.customers.create({
         email: user.email,
         metadata: {
           user_id: userId,
@@ -74,7 +87,7 @@ export async function POST(request: Request) {
     }
 
     // Create checkout session
-    const session = await stripe.checkout.sessions.create({
+    const session = await stripeClient.checkout.sessions.create({
       customer: customerId,
       mode: "subscription",
       payment_method_types: ["card"],
