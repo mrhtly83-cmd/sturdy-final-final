@@ -11,6 +11,7 @@ import {
   View,
   ActivityIndicator,
   Alert,
+  TouchableOpacity,
 } from 'react-native';
 import { useAuth } from '../../src/contexts/AuthContext';
 import { getUserChildren, getUserProfile, saveScript } from '../../src/services/databaseService';
@@ -291,7 +292,7 @@ export default function CreateNewScreen() {
 
       {/* Child Selector */}
       <ChildSelector
-        children={children}
+        childList={children}
         selectedChildId={selectedChildId}
         onSelectChild={setSelectedChildId}
         onAddChild={handleAddChild}
