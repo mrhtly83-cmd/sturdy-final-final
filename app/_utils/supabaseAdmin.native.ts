@@ -4,17 +4,23 @@
  * All admin operations should be done through the web backend
  */
 
-import { SupabaseClient } from "@supabase/supabase-js";
+/**
+ * Helper function that throws an error indicating admin operations
+ * are not supported on native platforms.
+ */
+function throwNotSupportedError(): never {
+  throw new Error(
+    "Supabase admin operations are not supported on native platforms. " +
+      "Please use the web API endpoint for admin operations."
+  );
+}
 
 /**
  * Supabase admin client stub for native platforms.
- * Admin operations should only be called from the web backend.
+ * Any method call will throw an error directing users to use the web API.
  */
-export const supabaseAdmin = new Proxy({} as SupabaseClient, {
-  get() {
-    throw new Error(
-      "Supabase admin operations are not supported on native platforms. " +
-        "Please use the web API endpoint for admin operations."
-    );
-  },
-});
+export const supabaseAdmin = {
+  from: throwNotSupportedError,
+  rpc: throwNotSupportedError,
+  auth: { admin: { createUser: throwNotSupportedError } },
+};
