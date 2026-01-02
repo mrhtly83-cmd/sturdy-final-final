@@ -10,11 +10,43 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- =============================================================================
+-- CLEANUP EXISTING OBJECTS (for re-runs)
+-- =============================================================================
+
+-- Drop existing triggers first (they depend on functions)
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+DROP TRIGGER IF EXISTS on_profile_updated ON profiles;
+
+-- Drop existing policies (they depend on tables)
+DROP POLICY IF EXISTS "Users can view their own profile" ON profiles;
+DROP POLICY IF EXISTS "Users can insert their own profile" ON profiles;
+DROP POLICY IF EXISTS "Users can update their own profile" ON profiles;
+DROP POLICY IF EXISTS "Users can view their own children" ON children;
+DROP POLICY IF EXISTS "Users can insert their own children" ON children;
+DROP POLICY IF EXISTS "Users can update their own children" ON children;
+DROP POLICY IF EXISTS "Users can delete their own children" ON children;
+DROP POLICY IF EXISTS "Users can view their own scripts" ON scripts;
+DROP POLICY IF EXISTS "Users can insert their own scripts" ON scripts;
+DROP POLICY IF EXISTS "Users can update their own scripts" ON scripts;
+DROP POLICY IF EXISTS "Users can delete their own scripts" ON scripts;
+
+-- Drop existing indexes
+DROP INDEX IF EXISTS idx_children_parent_id;
+DROP INDEX IF EXISTS idx_scripts_parent_id;
+DROP INDEX IF EXISTS idx_scripts_child_id;
+DROP INDEX IF EXISTS idx_scripts_is_favorite;
+
+-- Drop existing tables (in reverse dependency order)
+DROP TABLE IF EXISTS scripts;
+DROP TABLE IF EXISTS children;
+DROP TABLE IF EXISTS profiles;
+
+-- =============================================================================
 -- TABLES
 -- =============================================================================
 
 -- Profiles: Link to Auth
-CREATE TABLE IF NOT EXISTS profiles (
+CREATE TABLE profiles (
   id uuid REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
   full_name text,
   is_premium boolean DEFAULT false,
@@ -23,7 +55,7 @@ CREATE TABLE IF NOT EXISTS profiles (
 );
 
 -- Children: Age-based logic
-CREATE TABLE IF NOT EXISTS children (
+CREATE TABLE children (
   id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
   parent_id uuid REFERENCES profiles(id) ON DELETE CASCADE,
   name text,
@@ -33,7 +65,7 @@ CREATE TABLE IF NOT EXISTS children (
 );
 
 -- Scripts & Journal: The "Ruptures"
-CREATE TABLE IF NOT EXISTS scripts (
+CREATE TABLE scripts (
   id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
   parent_id uuid REFERENCES profiles(id) ON DELETE CASCADE,
   child_id uuid REFERENCES children(id) ON DELETE SET NULL,
