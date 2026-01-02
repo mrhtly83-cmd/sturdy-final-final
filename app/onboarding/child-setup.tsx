@@ -89,7 +89,7 @@ export default function ChildSetupScreen() {
 
       {/* Name Input */}
       <View style={styles.inputGroup}>
-        <Text style={styles.label}>Child's Name</Text>
+        <Text style={styles.label}>Child&apos;s Name</Text>
         <TextInput
           style={styles.input}
           value={name}
@@ -117,9 +117,9 @@ export default function ChildSetupScreen() {
       {/* Neurotype Selector */}
       <View style={styles.inputGroup}>
         <Text style={styles.label}>Neurotype (Optional)</Text>
-        <Text style={styles.helper}>
-          Helps us tailor our approach to your child's needs
-        </Text>
+          <Text style={styles.helper}>
+            Helps us tailor our approach to your child&apos;s needs
+          </Text>
         <View style={styles.chipContainer}>
           {NEUROTYPES.map((type) => {
             const isSelected = neurotype === type;

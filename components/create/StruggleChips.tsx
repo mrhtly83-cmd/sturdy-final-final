@@ -33,7 +33,7 @@ export default function StruggleChips({
   return (
     <View style={styles.container}>
       <Text style={styles.label}>Choose Struggle</Text>
-      <Text style={styles.subtitle}>What's happening right now?</Text>
+      <Text style={styles.subtitle}>What&apos;s happening right now?</Text>
       
       <ScrollView 
         horizontal 

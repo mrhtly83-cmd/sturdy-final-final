@@ -53,7 +53,7 @@ export default function UsageBar({ usage, onUpgrade }: UsageBarProps) {
         {isAtLimit ? (
           <>
             <Text style={styles.messageText}>
-              You've reached your free limit for this week 🎯
+              You&apos;ve reached your free limit for this week 🎯
             </Text>
             <TouchableOpacity 
               style={styles.upgradeButton}

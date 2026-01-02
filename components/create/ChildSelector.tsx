@@ -6,14 +6,14 @@ import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-nati
 import { Child } from '../../src/types';
 
 interface ChildSelectorProps {
-  children: Child[];
+  childList: Child[];
   selectedChildId: string | null;
   onSelectChild: (childId: string) => void;
   onAddChild: () => void;
 }
 
 export default function ChildSelector({
-  children,
+  childList,
   selectedChildId,
   onSelectChild,
   onAddChild,
@@ -43,7 +43,7 @@ export default function ChildSelector({
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {children.map((child) => {
+        {childList.map((child) => {
           const age = calculateAge(child.birth_date);
           const isSelected = selectedChildId === child.id;
           
