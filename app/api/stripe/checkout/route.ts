@@ -4,24 +4,8 @@
  * Creates a subscription checkout session for monthly or annual plans
  */
 
-import Stripe from "stripe";
+import { getStripe } from "../../../_utils/stripeServer";
 import { supabaseServer } from "../../../_utils/supabaseServer";
-
-// Lazy initialization to avoid errors when env vars are not set during build
-let stripe: Stripe | null = null;
-
-function getStripe(): Stripe {
-  if (!stripe) {
-    const apiKey = process.env.STRIPE_SECRET_KEY;
-    if (!apiKey) {
-      throw new Error("STRIPE_SECRET_KEY environment variable is not configured");
-    }
-    stripe = new Stripe(apiKey, {
-      apiVersion: "2025-12-15.clover",
-    });
-  }
-  return stripe;
-}
 
 export async function POST(request: Request) {
   try {
