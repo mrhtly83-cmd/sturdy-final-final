@@ -21,14 +21,14 @@ The package.json has been updated to use:
 ```json
 {
   "dependencies": {
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
     "react-native": "0.83.1",
     "expo": "~54.0.30",
     "expo-router": "~6.0.21"
   },
   "devDependencies": {
-    "@types/react": "^19.1.1"
+    "@types/react": "19.1.1"
   }
 }
 ```
