@@ -32,8 +32,8 @@ A comprehensive `.env.example` file is already present with:
 ### Q: Can you confirm you want me to remove the committed .env file?
 **A:** No `.env` file is committed to the repository, so there's nothing to remove.
 
-### Q: Please provide the current .env BlobSha from main?
-**A:** There is no `.env` file in the repository (no BlobSha exists).
+### Q: Please provide the current .env blob SHA from main?
+**A:** There is no `.env` file in the repository (no blob SHA exists).
 
 ### Q: Do you want me to add a sanitized .env.example?
 **A:** Already exists! The file `.env.example` is present with proper placeholders and documentation.
